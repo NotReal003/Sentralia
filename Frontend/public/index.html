@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="cupcake">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:description" content="Requests Page for submitting reports, applications & support queries!" />
+    <meta property="og:title" content="Request | NotReal003" />
+    <meta property="og:url" content="https://request.notreal003.org" />
+    <!--<meta name="description" content="Requests Submissions, reports, applications & support!" /> -->
+    <meta property="og:image" content="https://request.notreal003.org/IMG_3231.png" />
+    <link rel="preload" href="IMG_3231.png" as="image" type="image/png" />
+    <link rel="website icon" type="image/png" href="IMG_3231.png">
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/IMG_3231.png" />
+    <link rel="icon" href="/IMG_3231.png" type="image/png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <script src="https://status.notreal003.org/request-collect.js" defer></script>
+    <meta name="google-site-verification" content="C50u9WBk4uVfbdl7w676-CCZOuBL8HsJGIsxsQMSVWo" />
+
+    <title>Request | NotReal003</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>    
+
+    <script>
+      window.addEventListener('load', function() {
+        var script = document.createElement('script');
+        script.src = "https://www.googletagmanager.com/gtag/js?id=G-Q976LL4C7Q";
+        script.async = true;
+        document.head.appendChild(script);
+
+        script.onload = function() {
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', 'G-Q976LL4C7Q');
+        };
+      });
+    </script>
+    <!-- Add this in your <head> or before </body> -->
+<!--<script src="https://unpkg.com/web-vitals@3/dist/web-vitals.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  function sendToServer(metric) {
+    axios.post('https://api.notreal003.org/performance', metric, {
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      withCredentials: true
+    }).catch(err => {
+      console.warn("Metric send failed:", err);
+    });
+  }
+
+  webVitals.getCLS(sendToServer);
+  webVitals.getFID(sendToServer);
+  webVitals.getLCP(sendToServer);
+  webVitals.getFCP(sendToServer);
+  webVitals.getTTFB(sendToServer);
+  webVitals.getINP?.(sendToServer);
+</script>
+-->
+  </body>
+</html>

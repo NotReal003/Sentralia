@@ -1,0 +1,71 @@
+const express = require("express");
+const mongoose = require("mongoose");
+const mainRouter = require("./routes/main-router");
+const { rateLimiter, authMiddleware, notFoundHandler } = require("./middlewares/middleware");
+const errorHandler = require("./middlewares/errorHandler");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+require("dotenv").config();
+require('./config/passport');
+const passport = require('passport');
+const path = require('path');
+
+const accountDeletionJob = require('./jobs/accountDeletionJob');
+const Request = require('./models/Request');
+const User = require('./models/User');
+const sendRequestEmail = require('./utils/sendRequestEmail');
+const { getStatusMeta } = require('./utils/statusMeta');
+
+const app = express();
+
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      callback(null, true); // Allow all origins
+    },
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+app.use(cookieParser(process.env.SESSION_SECRET));
+app.use(express.urlencoded({ extended: true }));
+app.use(rateLimiter);
+app.use(authMiddleware);
+app.use("/", mainRouter);
+app.use(notFoundHandler);
+app.use(errorHandler);
+app.use(passport.initialize());
+app.use(passport.session());
+app.set('trust proxy', 1); 
+
+const PORT = process.env.PORT || 3001;
+
+app.get("/", (req, res) => {
+  res.json({ message: "Sentralia API" });
+});
+
+if (!process.env.MONGODB_URI) {
+  throw new Error("MONGODB_URI required in .env");
+}
+
+mongoose.connect(process.env.MONGODB_URI).then(() => {
+  console.log("Connected to database.");
+
+  accountDeletionJob(
+    Request,
+    User,
+    sendRequestEmail,
+    getStatusMeta
+  );
+
+  mongoose.connection.db
+    .collection("users")
+    .createIndex({ id: 1 }, { unique: true })
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`Listening on port ${PORT}`);
+      });
+    });
+});

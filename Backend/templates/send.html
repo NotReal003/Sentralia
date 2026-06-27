@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="color-scheme" content="light dark">
+    <meta name="supported-color-schemes" content="light dark">
+    <title>Update on {{requestName}}</title>
+
+    <style>
+        /* 1. RESET & CORE */
+        :root {
+            color-scheme: light dark;
+            supported-color-schemes: light dark;
+        }
+
+        html, body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            /* The Gradient Hack: Prevents Gmail/iOS from inverting the background */
+            background-color: #050505 !important;
+            background-image: linear-gradient(#050505, #050505) !important; 
+            color: #e5e5e5 !important;
+        }
+
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        div[style*="margin: 16px 0"] { margin: 0 !important; }
+
+        table, td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+            border-collapse: collapse !important;
+            border-spacing: 0 !important;
+        }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            display: block;
+            outline: none;
+            text-decoration: none;
+        }
+
+        a {
+            text-decoration: none;
+            color: {{statusColor}} !important;
+            transition: color 0.2s ease;
+        }
+
+        /* Force Text Colors to stay Light in all clients */
+        h1, h2, h3, p, span, td, div, a {
+            color: #e5e5e5;
+        }
+
+        /* 2. TYPOGRAPHY */
+        body, td {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        h1 { font-size: 24px; font-weight: 700; margin: 0; letter-spacing: -0.5px; color: #ffffff !important; }
+        p { font-size: 15px; line-height: 1.6; margin: 0; color: #a3a3a3 !important; }
+
+        /* 3. COMPONENTS */
+        .card-bg {
+            background-color: #111111 !important;
+            background-image: linear-gradient(#111111, #111111) !important;
+        }
+
+        .inner-box-bg {
+            background-color: #171717 !important;
+            background-image: linear-gradient(#171717, #171717) !important;
+        }
+
+        .footer-btn-bg {
+            background-color: #0a0a0a !important;
+            /* CRITICAL FIX: This gradient prevents the white box on iOS */
+            background-image: linear-gradient(#0a0a0a, #0a0a0a) !important;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-primary {
+            background-color: #e5e5e5 !important;
+            background-image: linear-gradient(#e5e5e5, #e5e5e5) !important;
+            color: #0a0a0a !important;
+            border-radius: 6px;
+            padding: 14px 32px;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .data-row td {
+            border-bottom: 1px solid #262626;
+            padding: 16px 0;
+            vertical-align: middle;
+        }
+        .data-row:last-child td {
+            border-bottom: none;
+        }
+
+        .label { color: #737373 !important; font-size: 13px; font-weight: 500; width: 40%; }
+        .value { color: #ffffff !important; font-size: 14px; font-weight: 500; text-align: right; width: 60%; }
+
+        /* Dark Mode Override prevention for Gmail App */
+        u + #body a {
+            color: inherit;
+            text-decoration: none;
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+        }
+
+        /* 4. SPECIFIC IOS DARK MODE OVERRIDES */
+        /* This targets iOS Mail specifically to force our colors back if they get inverted */
+        @media (prefers-color-scheme: dark) {
+            body { background-color: #050505 !important; color: #e5e5e5 !important; }
+            .card-bg { background-color: #111111 !important; }
+            .inner-box-bg { background-color: #171717 !important; }
+            .footer-btn-bg { background-color: #0a0a0a !important; color: #ffffff !important;}
+            h1, .value, strong { color: #ffffff !important; }
+            p, .label { color: #a3a3a3 !important; }
+        }
+
+        /* 5. RESPONSIVE */
+        @media only screen and (max-width: 600px) {
+            .email-container { width: 100% !important; }
+            .p-container { padding: 24px !important; }
+        }
+    </style>
+</head>
+<body id="body" style="background-color: #050505 !important; background-image: linear-gradient(#050505, #050505) !important; margin: 0 !important; padding: 0 !important;">
+
+    <center>
+        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #050505 !important; background-image: linear-gradient(#050505, #050505) !important; width: 100% !important;">
+            <tr>
+                <td align="center" style="padding: 40px 0;">
+
+                    <table role="presentation" class="email-container card-bg" border="0" cellpadding="0" cellspacing="0" width="520" style="background-color: #111111 !important; background-image: linear-gradient(#111111, #111111) !important; border: 1px solid #262626; border-radius: 12px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+
+                        <tr>
+                            <td style="background: {{statusGlow}}; padding: 40px 40px 0 40px; text-align: center;">
+                                <a href="https://request.notreal003.org" target="_blank">
+                                    <img src="https://request.notreal003.org/IMG_3275.jpeg" width="48" height="auto" alt="Logo" style="border-radius: 8px; margin: 0 auto 24px auto; border: 1px solid #333; display: block; color: #ffffff;">
+                                </a>
+                                <h1 style="margin-bottom: 8px; font-size: 22px; color: #ffffff !important;">{{requestName}} Update</h1>
+                                <p style="font-size: 13px; color: #737373 !important; font-family: monospace;">ID: {{id}}</p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="p-container" style="padding: 40px;">
+
+                                <p style="margin-bottom: 24px; color: #a3a3a3 !important;">
+                                    Hello <strong style="color: #ffffff !important;">{{username}}</strong>,
+                                </p>
+                                <p style="margin-bottom: 32px; color: #a3a3a3 !important;">
+                                    Your <strong>{{requestName}}</strong> status has changed. Below are the details regarding the decision made by our team.
+                                </p>
+
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 32px; border-collapse: collapse;">
+                                    <tr class="data-row">
+                                        <td class="label" style="color: #737373 !important;">Category</td>
+                                        <td class="value" style="color: #ffffff !important;">{{typeName}}</td>
+                                    </tr>
+
+                                    <tr class="data-row">
+                                        <td class="label" style="color: #737373 !important;">Current Status</td>
+                                        <td class="value" style="color: #ffffff !important;">
+                                            <span class="status-badge" style="color: {{statusColor}} !important; border: 1px solid {{statusColor}}; background-color: {{statusBg}};">
+                                                {{status}}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <div class="inner-box-bg" style="background-color: #171717 !important; background-image: linear-gradient(#171717, #171717) !important; border: 1px solid #262626; border-left: 3px solid {{statusColor}}; border-radius: 8px; padding: 20px; margin-bottom: 32px;">
+                                    <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #525252 !important; margin-bottom: 8px; font-weight: 700;">Reviewer Note</p>
+                                    <p style="color: #d4d4d4 !important; font-style: italic; font-size: 14px; line-height: 1.5;">{{reviewMessage}}</p>
+                                </div>
+
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center" style="padding-bottom: 32px;">
+                                            <a href="https://request.notreal003.org/requestdetail?id={{requestId}}" class="btn-primary" style="color: #0a0a0a !important;">
+                                                View Full Details &rarr;
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <p style="text-align: center; font-size: 13px; color: #737373 !important;">
+                                    If you have any questions, please <a href="https://notreal003.org/discord" style="color: {{statusColor}} !important; font-weight: 600; text-decoration: underline;">Contact Us</a>.
+                                </p>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="520" class="email-container">
+                        <tr>
+                            <td align="center" style="padding-top: 32px; padding-bottom: 40px;">
+
+                                <p style="font-size: 11px; color: #404040 !important; margin-bottom: 16px; line-height: 1.6; max-width: 460px; text-align: center;">
+                                    &copy; 2025 NotReal003. All rights reserved.<br>
+                                    This is an automated message and all email send by us will navigate you to notreal003.org or any other which includes this domain. Please do not reply to this email.
+                                </p>
+
+                                <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td align="center" class="footer-btn-bg" style="background-color: #0a0a0a !important; background-image: linear-gradient(#0a0a0a, #0a0a0a) !important; border: 1px solid #262626; border-radius: 100px; padding: 6px 16px;">
+                                            <a href="https://sentralia.notreal003.org" target="_blank" style="display: block; text-decoration: none;">
+                                                <span style="font-family: 'Courier New', monospace; font-size: 10px; color: #737373 !important; letter-spacing: 0.5px; vertical-align: middle;">POWERED BY</span>
+                                                <span style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 11px; font-weight: 800; color: #ffffff !important; margin-left: 4px; vertical-align: middle; letter-spacing: 0.5px;">SENTRALIA</span>
+                                                <span style="display: inline-block; width: 6px; height: 6px; background-color: {{statusColor}}; border-radius: 50%; margin-left: 6px; vertical-align: middle;"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+    </center>
+</body>
+</html>

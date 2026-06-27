@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@plugin "daisyui" {
+  themes: dracula --default, dracula --prefersdark;
+}
+@custom-variant dark (&:where([data-theme=dracula], [data-theme=dracula] *));
