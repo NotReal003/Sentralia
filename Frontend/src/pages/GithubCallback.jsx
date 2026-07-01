@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient, { APIURL as API } from '../utils/api';
 import { FaLock, FaSpinner } from "react-icons/fa";
 import { IoLogoGithub } from "react-icons/io";
 
@@ -14,14 +14,12 @@ const Callback = () => {
 
     if (code) {
       setLoading(true);
-      axios.get(`https://api.notreal003.org/auth/github/callback?code=${code}`, {
-        withCredentials: false,
-      })
+      apiClient.get(`${API}/auth/github/callback?code=${code}`)
         .then(response => {
           if (response.status === 200) {
             const token = response.data.jwtToken;
             localStorage.setItem('jwtToken', token);
-            window.location.href = `https://api.notreal003.org/auth/user?callback=${token}`;
+            window.location.href = `${API}/auth/user?callback=${token}`;
           }
         })
         .catch(error => {

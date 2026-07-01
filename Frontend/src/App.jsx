@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar, Footer, Unavailability } from './components';
 import MaintenanceMode from './components/NoAPI';
 import routeConfig from './routes';
-import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import apiClient, { API } from './utils/api';
 import Ads from './components/Ads';
 
 const App = () => {
@@ -12,10 +12,8 @@ const App = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [apiUnavailable, setApiUnavailable] = useState(false);
-  const API = process.env.REACT_APP_API;
-
     useEffect(() => {
-    axios.get(`${API}/health`, { timeout: 7000 })
+    apiClient.get(`${API}/health`, { timeout: 7000 })
       .then(res => {
         const data = res.data;
 
@@ -48,7 +46,7 @@ const App = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const ref = urlParams.get('ref');
     if (ref) {
-      axios.get(`${API}/ref/${ref}`);
+      apiClient.get(`${API}/ref/${ref}`);
       console.log(`${ref} referral`);
     }
 

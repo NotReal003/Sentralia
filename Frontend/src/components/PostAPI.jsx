@@ -1,17 +1,11 @@
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { useEffect } from 'react';
 
 const PerformanceSender = () => {
   useEffect(() => {
-    const API = process.env.REACT_APP_API;
     import('web-vitals').then(({ getCLS, getFID, getLCP, getFCP, getTTFB, getINP }) => {
       const send = (metric) => {
-        axios.post(`${API}/performance`, metric, {
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }).catch(err => {
+        apiClient.post(`${API}/performance`, metric).catch(err => {
           console.warn("Failed to send metric:", err);
         });
       };

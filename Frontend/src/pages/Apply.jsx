@@ -6,6 +6,7 @@ import { FaSpinner } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import toast, { Toaster } from 'react-hot-toast';
 import DOMPurify from "dompurify";
+import { API, getAuthHeaders } from '../utils/api';
 
 const Apply = () => {
   const [inGameName, setInGameName] = useState('');
@@ -14,7 +15,6 @@ const Apply = () => {
   const [agree, setAgree] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
 
   const sanitize = (input) => DOMPurify.sanitize(input, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 
@@ -43,7 +43,7 @@ const Apply = () => {
       const res = await fetch(`${API}/requests/application`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
         signal: controller.signal,
       });

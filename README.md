@@ -2,7 +2,7 @@
 
 The **Sentralia** is a Open Source and Powerful, fullstack solution for managing user requests, role-based administration, and ticket workflows. Built using a modern React frontend and a Node.js/Express backend, it offers a professional-grade foundation for SaaS, internal teams, or client support systems.
 
-> As of current use, Frontend and Backend/API should use the same domain to work as it yses cookies, we will update it to Header which will allow app to run in diffrent domains if needed.
+> As of current use, Frontend and Backend/API should use the same domain to work as it yses cookies, we will update it to Header which will allow app to run in diffrent domains if needed. (FIXED, now app should also work with other domain too.)
 > 
 ---
 

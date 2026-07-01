@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import apiClient, { MAIN_API as API } from '../utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   MdDelete, MdUpdate, MdContentCopy, MdArrowBack,
@@ -55,7 +55,6 @@ const AdminDetail = () => {
   const [adminOnly, setAdminOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_MAIN_API;
 
   const sanitizeInput = (input) => input.replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c] || c));
 
@@ -67,7 +66,7 @@ const AdminDetail = () => {
     }
     setLoading(true);
     try {
-      const res = await axios.get(`${API}/admin/requests/${requestId}`, { withCredentials: true });
+      const res = await apiClient.get(`${API}/admin/requests/${requestId}`);
       setRequest(res.data);
       setStatus(res.data.status);
       setReviewMessage(res.data.reviewMessage || '');
@@ -87,7 +86,7 @@ const AdminDetail = () => {
 
   const generateAISummary = async () => {
     try {
-      const res = await axios.post(`${API}/admin/analyze`, { request }, { withCredentials: true });
+      const res = await apiClient.post(`${API}/admin/analyze`, { request });
       setAiSummary(res.data.summary);
       setAiRecommendation(res.data.recommendation);
     } catch {
@@ -98,7 +97,7 @@ const AdminDetail = () => {
   const generateAIReview = async () => {
     setAiGenerating(true);
     try {
-      const res = await axios.post(`${API}/admin/generate`, { request }, { withCredentials: true });
+      const res = await apiClient.post(`${API}/admin/generate`, { request });
       setReviewMessage(res.data.rephrased || res.data.suggestion || '');
       toast.success("AI review message generated.");
     } catch {
@@ -110,7 +109,7 @@ const AdminDetail = () => {
 
   const modifyTone = async (style) => {
     try {
-      const res = await axios.post(`${API}/admin/rephrase`, { message: reviewMessage, style }, { withCredentials: true });
+      const res = await apiClient.post(`${API}/admin/rephrase`, { message: reviewMessage, style });
       setReviewMessage(res.data.rephrased);
       toast.success('Message updated.');
     } catch {
@@ -122,7 +121,7 @@ const AdminDetail = () => {
     if (!chatInput.trim()) return;
     setChatOutput("Thinking...");
     try {
-      const res = await axios.post(`${API}/admin/chat`, { prompt: chatInput, request }, { withCredentials: true });
+      const res = await apiClient.post(`${API}/admin/chat`, { prompt: chatInput, request });
       setChatOutput(res.data.response || 'No response.');
     } catch {
       setChatOutput("AI failed to respond.");
@@ -131,9 +130,8 @@ const AdminDetail = () => {
 
   const handleUpdateAndSendEmail = async () => {
     const sanitizedReviewMessage = reviewMessage;
-    const updatePromise = axios.patch(`${API}/admin/${requestId}`, 
-        { status, reviewMessage: sanitizedReviewMessage }, 
-        { withCredentials: true }
+    const updatePromise = apiClient.patch(`${API}/admin/${requestId}`, 
+        { status, reviewMessage: sanitizedReviewMessage }
     );
 
     toast.promise(updatePromise, {
@@ -147,12 +145,12 @@ const AdminDetail = () => {
   };
 
   const sendEmail = async (username) => {
-      const emailPromise = axios.post(`${API}/admin/send/email`, {
+      const emailPromise = apiClient.post(`${API}/admin/send/email`, {
           requestId,
           reviewMessage,
           status,
           username: username || request.username,
-      }, { withCredentials: true });
+      });
 
       toast.promise(emailPromise, {
           loading: 'Sending notification email...',
@@ -175,7 +173,7 @@ const AdminDetail = () => {
 
   const handleDelete = async () => {
     setShowDeleteModal(false);
-    toast.promise(axios.delete(`${API}/admin/${requestId}`, { withCredentials: true }), {
+    toast.promise(apiClient.delete(`${API}/admin/${requestId}`), {
       loading: 'Deleting...',
       success: () => {
         navigate('/admin');

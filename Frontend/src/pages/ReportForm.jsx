@@ -6,6 +6,7 @@ import { FaSpinner } from "react-icons/fa";
 import { FaShieldHalved } from "react-icons/fa6";
 import toast, { Toaster } from 'react-hot-toast';
 import DOMPurify from "dompurify";
+import { API, getAuthHeaders } from '../utils/api';
 
 const ReportForm = () => {
   const [messageLink, setMessageLink] = useState('');
@@ -13,7 +14,6 @@ const ReportForm = () => {
   const [agree, setAgree] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
 
   const sanitize = (input) => DOMPurify.sanitize(input, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
 
@@ -41,7 +41,7 @@ const ReportForm = () => {
       const res = await fetch(`${API}/requests/report`, {
         method: 'POST',
         credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -57,7 +57,7 @@ const ReportForm = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [messageLink, additionalInfo, agree, navigate, API]);
+  }, [messageLink, additionalInfo, agree, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative text-gray-200 font-sans overflow-hidden">

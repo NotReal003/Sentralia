@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IoMdSettings, IoMdListBox } from "react-icons/io";
 import { FaDiscord, FaCheck, FaUserCircle, FaSpinner, FaTrash } from "react-icons/fa";
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import EditProfileModal from '../components/EditProfileModal';
 import { MdMarkEmailRead, MdAdminPanelSettings } from "react-icons/md";
 import toast, { Toaster } from 'react-hot-toast';
@@ -22,13 +22,11 @@ const Profile = () => {
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [isSubmittingDelete, setIsSubmittingDelete] = useState(false);
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
-
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const userResponse = await axios.get(`${API}/users/@me`, { withCredentials: true });
-        const requestsResponse = await axios.get(`${API}/requests`, { withCredentials: true });
+        const userResponse = await apiClient.get(`${API}/users/@me`);
+        const requestsResponse = await apiClient.get(`${API}/requests`);
         setUser(userResponse.data);
         setRequestCount(requestsResponse.data.length);
         setLoading(false);
@@ -55,11 +53,9 @@ const Profile = () => {
 
     setIsSubmittingDelete(true);
     try {
-      const response = await axios.post(`${API}/requests/account-deletion`, {
+      const response = await apiClient.post(`${API}/requests/account-deletion`, {
         messageLink,
         additionalInfo
-      }, { 
-        withCredentials: true 
       });
       
       toast.success(response.data.message || 'Account deletion request submitted.');

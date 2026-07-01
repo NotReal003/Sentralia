@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { API, getAuthHeaders } from '../utils/api';
 
 const MailIcon = ({ className = 'h-6 w-6' }) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
@@ -33,7 +34,6 @@ const Support = ({ setCurrentPage }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   
-  const API_BASE_URL = process.env.REACT_APP_API;
 
   const handleSubmit = useCallback(async (e) => {
   e.preventDefault();
@@ -65,12 +65,10 @@ const Support = ({ setCurrentPage }) => {
   };
 
   try {
-    const response = await fetch(`${API_BASE_URL}/requests/support`, {
+    const response = await fetch(`${API}/requests/support`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: getAuthHeaders(),
       body: JSON.stringify(payload),
     });
 
@@ -89,7 +87,7 @@ const Support = ({ setCurrentPage }) => {
   } finally {
     setIsSubmitting(false);
   }
-}, [supportRequest, additionalInfo, agree, navigate, API_BASE_URL]);
+}, [supportRequest, additionalInfo, agree, navigate]);
 
   const supportRequestRemaining = 1750 - supportRequest.length;
   const additionalInfoRemaining = 1750 - additionalInfo.length;

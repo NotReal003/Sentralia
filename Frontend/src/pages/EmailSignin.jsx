@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { FaSpinner } from "react-icons/fa";
 import toast, { Toaster } from 'react-hot-toast';
 import { IoLogIn } from "react-icons/io5";
@@ -9,8 +9,6 @@ const EmailSignin = () => {
   const [code, setCode] = useState('');
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const API = process.env.REACT_APP_API;
-
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -25,7 +23,7 @@ const EmailSignin = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post(`${API}/auth/email-signin`, { email });
+      const response = await apiClient.post(`${API}/auth/email-signin`, { email });
       toast.success(response.data.message || 'Verification code sent to your email.');
       setStep(2);
     } catch (error) {
@@ -40,19 +38,16 @@ const EmailSignin = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post(
+      const response = await apiClient.post(
         `${API}/auth/verify-signin-email-code`,
-        { email, code },
-        { withCredentials: true }
+        { email, code }
       );
 
       const jwtToken = response.data.jwtToken;
       document.cookie = `token=${jwtToken}; domain=notreal003.org; path=/; max-age=${6.048e8 / 1000}; httpOnly: true;`;
       toast('Sign-in in process...');
-      axios.get(`${API}/auth/user?callback=${jwtToken}`, {
-        headers: {
-          'Authorization': `Account ${jwtToken}`,
-        },
+      apiClient.get(`${API}/auth/user?callback=${jwtToken}`, {
+        headers: { 'Authorization': `Account ${jwtToken}` },
       })
         .then(userResponse => {
           if (userResponse.status === 200) {

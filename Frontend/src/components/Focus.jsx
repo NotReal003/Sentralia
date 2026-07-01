@@ -1,5 +1,5 @@
 import React from "react";
-import axios from "axios";
+import apiClient, { APIURL } from "../utils/api";
 import FocusLock from "react-focus-lock";
 
 const LogoutModal = ({ isOpen, onConfirm, onCancel, setShowAlert, setErrorIssue }) => {
@@ -7,9 +7,7 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel, setShowAlert, setErrorIssue 
 
   const handleLogout = async () => {
     try {
-      const res = await axios.get(`https://api.notreal003.org/auth/signout`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get(`${APIURL}/auth/signout`);
 
       if (res.status !== 200) {
         setShowAlert(true);

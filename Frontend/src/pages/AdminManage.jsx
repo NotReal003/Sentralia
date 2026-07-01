@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import toast, { Toaster } from 'react-hot-toast';
 import {
   FaUserSlash,
@@ -84,13 +84,11 @@ const ManageUsersPanel = ({ api, onAction, adminOnly, setAdminOnly }) => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [userToUnblock, setUserToUnblock] = useState(null);
-  const API = process.env.REACT_APP_API;
-
   const fetchBlockedUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API}/users/blocks`, { withCredentials: true });
+      const res = await apiClient.get(`${API}/users/blocks`);
       const filtered = res.data.filter((u) => u.blocked === 'YES');
       setBlockedUsers(filtered);
     } catch (err) {
@@ -112,7 +110,7 @@ const ManageUsersPanel = ({ api, onAction, adminOnly, setAdminOnly }) => {
         toast.error('Both user ID and reason are required');
         return Promise.reject();
       }
-      await axios.post(`${api}/users/block/add`, { myBlockUser: userId, myBlockReason: reason }, { withCredentials: true });
+      await apiClient.post(`${API}/users/block/add`, { myBlockUser: userId, myBlockReason: reason });
       setUserId('');
       setReason('');
       await fetchBlockedUsers();
@@ -126,7 +124,7 @@ const ManageUsersPanel = ({ api, onAction, adminOnly, setAdminOnly }) => {
   const handleUnblock = () => {
     if (!userToUnblock) return;
     onAction(async () => {
-      await axios.put(`${API}/users/unblock`, { myBlockUser: userToUnblock.user_id }, { withCredentials: true });
+      await apiClient.put(`${API}/users/unblock`, { myBlockUser: userToUnblock.user_id });
       await fetchBlockedUsers();
     }, {
       loading: `Unblocking ${userToUnblock.user_id}...`,
@@ -258,13 +256,11 @@ const ManageIpsPanel = ({ api, onAction, adminOnly, setAdminOnly }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [ipToUnban, setIpToUnban] = useState(null);
-  const API = process.env.REACT_APP_API;
-
   const fetchBannedIps = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API}/ip/banned`, { withCredentials: true });
+      const res = await apiClient.get(`${API}/ip/banned`);
       setBannedIps(res.data);
     } catch (err) {
       if (err.response?.status === 403) setAdminOnly(true);
@@ -285,7 +281,7 @@ const ManageIpsPanel = ({ api, onAction, adminOnly, setAdminOnly }) => {
         toast.error('Both IP address and reason are required');
         return Promise.reject();
       }
-      await axios.post(`${API}/ip/ban`, { ipAddress, reason }, { withCredentials: true });
+      await apiClient.post(`${API}/ip/ban`, { ipAddress, reason });
       setIpAddress('');
       setReason('');
       await fetchBannedIps();
@@ -299,7 +295,7 @@ const ManageIpsPanel = ({ api, onAction, adminOnly, setAdminOnly }) => {
   const handleUnban = () => {
     if (!ipToUnban) return;
     onAction(async () => {
-      await axios.delete(`${api}/ip/unban`, { data: { ipAddress: ipToUnban.ipAddress }, withCredentials: true });
+      await apiClient.delete(`${API}/ip/unban`, { data: { ipAddress: ipToUnban.ipAddress } });
       await fetchBannedIps();
     }, {
       loading: `Unbanning ${ipToUnban.ipAddress}…`,
@@ -405,7 +401,6 @@ const ManageIpsPanel = ({ api, onAction, adminOnly, setAdminOnly }) => {
 const AdminManagePage = () => {
   const [tab, setTab] = useState('users');
   const [adminOnly, setAdminOnly] = useState(false);
-  const API = process.env.REACT_APP_API;
 
   const handleAction = async (action, messages) => {
     try {

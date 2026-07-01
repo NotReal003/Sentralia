@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient, { APIURL as API } from '../utils/api';
 import { FaSpinner, FaDiscord } from "react-icons/fa";
 import { FcLock } from "react-icons/fc";
 import toast, { Toaster } from 'react-hot-toast';
@@ -9,8 +9,6 @@ const Callback = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(null);
-  const API = process.env.REACT_APP_APIURL;
-
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
@@ -18,9 +16,7 @@ const Callback = () => {
 
     if (code) {
       setLoading(true);
-      axios.get(`${API}/auth/callback?code=${code}`, {
-        withCredentials: true,
-      })
+      apiClient.get(`${API}/auth/callback?code=${code}`)
         .then(response => {
           if (response.status === 200) {
             const token = response.data.jwtToken;
@@ -29,9 +25,7 @@ const Callback = () => {
             document.cookie = `token=${token}; domain=notreal003.org; path=/; max-age=${6.048e8 / 1000}; httpOnly: true;`;
 
             toast('Verification In Process...');
-            axios.get(`https://api.notreal003.org/auth/user?callback=${token}`, {
-              withCredentials: true,
-            })
+            apiClient.get(`${API}/auth/user?callback=${token}`)
               .then(userResponse => {
                 if (userResponse.status === 200) {
                   window.location.href = redirectPath;

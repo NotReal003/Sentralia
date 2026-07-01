@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { House, CircleCheck } from 'lucide-react';
 import { FaDiscord, FaSpinner, FaExclamationTriangle } from "react-icons/fa";
 import { IoShieldCheckmark } from "react-icons/io5";
@@ -30,8 +30,6 @@ const Success = () => {
   const [myUser, setMyUser] = useState(null);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
-
   useEffect(() => {
     const fetchDetails = async () => {
       if (!requestId) {
@@ -41,8 +39,8 @@ const Success = () => {
       }
       try {
         const [requestRes, userRes] = await Promise.all([
-          axios.get(`${API}/requests/${requestId}`, { withCredentials: true }),
-          axios.get(`${API}/users/@me`, { withCredentials: true })
+          apiClient.get(`${API}/requests/${requestId}`),
+          apiClient.get(`${API}/users/@me`)
         ]);
         setRequest(requestRes.data);
         setMyUser(userRes.data);

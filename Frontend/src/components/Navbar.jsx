@@ -5,7 +5,7 @@ import { IoLogIn } from "react-icons/io5";
 import { ImExit } from "react-icons/im";
 import { MdNavigateNext } from "react-icons/md";
 import { LiaExternalLinkAltSolid } from "react-icons/lia";
-import axios from 'axios';
+import apiClient, { API, APIURL, getAuthHeaders } from '../utils/api';
 import { FcSettings } from "react-icons/fc";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -17,8 +17,6 @@ export default function Navbar({ isAuthenticated }) {
   const [LogoutModal, setLogoutModal] = useState(false);
   const [logout, setLogout] = useState(false);
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
-  const APIURL = process.env.REACT_APP_APIURL;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -26,7 +24,8 @@ export default function Navbar({ isAuthenticated }) {
 
       try {
         const res = await fetch(`${API}/users/@me`, {
-          withCredentials: true,
+          credentials: 'include',
+          headers: getAuthHeaders(),
         });
 
         if (res.status === 403) {
@@ -74,9 +73,7 @@ export default function Navbar({ isAuthenticated }) {
   const handleLogout = async () => {
     try {
       setLogout(true);
-      const res = await axios.get(`${APIURL}/auth/signout`, {
-        withCredentials: true,
-      });
+      const res = await apiClient.get(`${APIURL}/auth/signout`);
       if (res.status !== 200) {
         setShowAlert(true);
         setErrorIssue('We are unable to logout you.');

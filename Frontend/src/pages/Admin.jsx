@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { FaDiscord, FaArrowRight, FaSyncAlt, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaRedo, FaBan, FaShieldAlt } from 'react-icons/fa';
 import { MdSupportAgent } from 'react-icons/md';
@@ -111,12 +111,11 @@ const Admin = () => {
     const [isModalOpen, setModalOpen] = useState(false);
     const requestsPerPage = 10;
     const navigate = useNavigate();
-    const API = process.env.REACT_APP_API;
 
     useEffect(() => {
         const fetchApiStatus = async () => {
              try {
-                 const response = await axios.get(`${API}/server/api-status`, { withCredentials: true });
+                 const response = await apiClient.get(`${API}/server/api-status`);
                  setApiClosed(response.data.serverClosed === "yesclosed");
              } catch (err) {
                  console.error("Could not fetch API status", err);
@@ -130,7 +129,7 @@ const Admin = () => {
         const fetchRequests = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${API}/admin/requests`, { withCredentials: true });
+                const response = await apiClient.get(`${API}/admin/requests`);
                 const sortedRequests = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 setRequests(sortedRequests);
                 setError(null);
@@ -150,9 +149,8 @@ const Admin = () => {
 
     const handleToggleApiStatus = async () => {
         try {
-            await axios.patch(`${API}/server/manage-api`, 
-                { closeType: apiClosed ? 'noopened' : 'yesclosed' }, 
-                { withCredentials: true }
+            await apiClient.patch(`${API}/server/manage-api`, 
+                { closeType: apiClosed ? 'noopened' : 'yesclosed' }
             );
             toast.success(`API has been ${apiClosed ? 'opened' : 'closed'} successfully.`);
             setApiClosed(!apiClosed);

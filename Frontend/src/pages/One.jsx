@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { FaDiscord, FaArrowRight, FaSpinner } from 'react-icons/fa';
 import { MdSupportAgent, MdDelete } from 'react-icons/md';
@@ -55,14 +55,10 @@ const One = () => {
   const [error, setError] = useState(null);
   const token = localStorage.getItem('jwtToken');
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
-
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await axios.get(`${API}/requests`, {
-          withCredentials: true,
-        });
+        const response = await apiClient.get(`${API}/requests`);
         if (response.status === 403) {
           window.location.reload();
           return;

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { APIURL } from '../utils/api';
 
 const DiscordIcon = () => (
   <svg
@@ -48,7 +49,7 @@ const GithubIcon = () => (
 const Login = ({ setCurrentPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const API_BASE_URL = process.env.REACT_APP_APIURL;
+  const API_BASE_URL = APIURL;
 
   const handleDiscordLogin = () => {
    const redirectPath = location.state?.from || '/profile';

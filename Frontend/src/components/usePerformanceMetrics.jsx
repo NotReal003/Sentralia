@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { format } from 'date-fns';
 
 const usePerformanceMetrics = () => {
   const [metrics, setMetrics] = useState([]);
   const [lastUpdated, setLastUpdated] = useState('fetching...');
-  const API = process.env.REACT_APP_API;
 
   const fetchMetrics = async () => {
     try {
-      const res = await axios.get(`${API}/performance`, { withCredentials: true });
+      const res = await apiClient.get(`${API}/performance`);
       setMetrics(res.data);
       setLastUpdated(format(new Date(), 'HH:mm:ss'));
     } catch (err) {

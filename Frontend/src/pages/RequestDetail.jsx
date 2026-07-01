@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { IoMdArrowRoundBack } from 'react-icons/io';
 import {
     FaSpinner, FaExclamationTriangle, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaBan, FaShieldAlt
@@ -96,8 +96,6 @@ function RequestDetail() {
     const [isCancelling, setIsCancelling] = useState(false);
     const [permissionError, setPermissionError] = useState(null);
     const navigate = useNavigate();
-    const API = process.env.REACT_APP_API;
-
     useEffect(() => {
         const fetchRequest = async () => {
             if (!requestId) {
@@ -106,7 +104,7 @@ function RequestDetail() {
                 return;
             }
             try {
-                const response = await axios.get(`${API}/requests/${requestId}`, { withCredentials: true });
+                const response = await apiClient.get(`${API}/requests/${requestId}`);
                 setRequest(response.data);
             } catch (error) {
                 setPermissionError(error.response?.data?.message || 'You do not have permission to view this request.');
@@ -119,9 +117,8 @@ function RequestDetail() {
 
     const handleCancelRequest = async () => {
         setIsCancelling(true);
-        const cancelPromise = axios.patch(`${API}/requests/${requestId}/cancel`,
-            { status: 'CANCELLED', reviewMessage: 'Self-canceled by the user.' },
-            { withCredentials: true }
+        const cancelPromise = apiClient.patch(`${API}/requests/${requestId}/cancel`,
+            { status: 'CANCELLED', reviewMessage: 'Self-canceled by the user.' }
         );
 
         toast.promise(cancelPromise, {
@@ -132,7 +129,7 @@ function RequestDetail() {
 
         try {
             await cancelPromise;
-            const response = await axios.get(`${API}/requests/${requestId}`, { withCredentials: true });
+            const response = await apiClient.get(`${API}/requests/${requestId}`);
             setRequest(response.data);
         } catch (error) {
         } finally {

@@ -13,17 +13,16 @@ import {
 import {
   IoShieldCheckmark
 } from 'react-icons/io5';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 
 const Home = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isStaff, setIsStaff] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const API = process.env.REACT_APP_API;
 
   useEffect(() => {
-    axios.get(`${API}/users/@me`, { withCredentials: true })
+    apiClient.get(`${API}/users/@me`)
       .then(res => {
         setIsAdmin(res.data.admin || false);
         setIsStaff(res.data.staff || false);

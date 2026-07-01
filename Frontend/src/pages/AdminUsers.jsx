@@ -1,7 +1,7 @@
 /* global BigInt */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import {
   FaUserShield, FaUser, FaTrash, FaSpinner, FaSave, FaUsers, FaSearch, FaSyncAlt,
   FaCrown, FaLock, FaInfoCircle, FaSignOutAlt, FaCheckCircle, FaTimesCircle, FaTools,
@@ -72,8 +72,6 @@ const UserModal = ({ user, onClose, loading, error, onRoleChange, onDelete }) =>
   const [alts, setAlts] = useState([]);
   const [altsLoading, setAltsLoading] = useState(false);
   const [altsError, setAltsError] = useState(null);
-  const apiUrl = process.env.REACT_APP_API;
-
   useEffect(() => {
     setNewRole(user?.role || 'user');
   }, [user]);
@@ -85,7 +83,7 @@ const UserModal = ({ user, onClose, loading, error, onRoleChange, onDelete }) =>
       setAltsError(null);
       setAltsLoading(true);
       try {
-        const res = await axios.get(`${apiUrl}/users/alts/${user.id}`, { withCredentials: true });
+        const res = await apiClient.get(`${API}/users/alts/${user.id}`);
         setAlts(res.data.altAccounts || []);
       } catch (err) {
         setAltsError(err.response?.data?.message || 'Failed to load alt accounts.');
@@ -94,7 +92,7 @@ const UserModal = ({ user, onClose, loading, error, onRoleChange, onDelete }) =>
       }
     };
     fetchAlts();
-  }, [user, apiUrl]);
+  }, [user]);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -110,8 +108,7 @@ const UserModal = ({ user, onClose, loading, error, onRoleChange, onDelete }) =>
           <button
             onClick={async () => {
               toast.dismiss(t.id);
-              const promise = axios.delete(`${apiUrl}/admin/user/${user.id}`, {
-                withCredentials: true,
+              const promise = apiClient.delete(`${API}/admin/user/${user.id}`, {
                 headers: { 'x-gdpr-key': process.env.REACT_APP_DELETE_KEY },
               });
               toast.promise(promise, {
@@ -409,7 +406,6 @@ const UserListSkeleton = ({ count = 10 }) => (
 );
 
 const AdminUsers = () => {
-  const apiUrl = process.env.REACT_APP_API;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [adminOnly, setAdminOnly] = useState(false);
@@ -445,7 +441,7 @@ const AdminUsers = () => {
         toast.loading('Refreshing user list...', { id: 'refresh-toast' });
     }
     try {
-      const response = await axios.get(`${apiUrl}/manage/users/all`, { withCredentials: true });
+      const response = await apiClient.get(`${API}/manage/users/all`);
 
       let list = [];
       if (Array.isArray(response.data.users)) {
@@ -472,7 +468,7 @@ const AdminUsers = () => {
     } finally {
       setLoading(false);
     }
-  }, [apiUrl]);
+  }, [API]);
 
   useEffect(() => {
     fetchUsers(false);
@@ -483,14 +479,14 @@ const AdminUsers = () => {
         setUsers((prevUsers) => prevUsers.map((user) => (user.id === userId ? { ...user, role: newRole, admin: newRole === 'admin', staff: newRole === 'mod', owner: newRole === 'owner' } : user)));
         setSelectedUser((prev) => prev && { ...prev, role: newRole, admin: newRole === 'admin', staff: newRole === 'mod', owner: newRole === 'owner' });
         
-        await axios.patch(`${apiUrl}/admin/staff/manage/${userId}/role`, { role: newRole }, { withCredentials: true });
+        await apiClient.patch(`${API}/admin/staff/manage/${userId}/role`, { role: newRole });
         
       } catch (error) {
         toast.error('Failed to update role. Reverting changes.');
         fetchUsers(true);
         throw new Error(error.response?.data?.message || 'API Error');
       }
-    }, [apiUrl, fetchUsers]
+    }, [API, fetchUsers]
   );
   
   const handleDeleteUser = useCallback((userId) => {
@@ -517,7 +513,7 @@ const AdminUsers = () => {
     setDetailLoading(true);
     setDetailError(null);
     try {
-      const response = await axios.get(`${apiUrl}/manage/user/${user.id}`, { withCredentials: true });
+      const response = await apiClient.get(`${API}/manage/user/${user.id}`);
       const detailedUser = normalizeUser(response.data.user || response.data);
       setSelectedUser(detailedUser);
     } catch (error) {
@@ -525,7 +521,7 @@ const AdminUsers = () => {
     } finally {
       setDetailLoading(false);
     }
-  }, [apiUrl]);
+  }, [API]);
 
   const closeModal = useCallback(() => setSelectedUser(null), []);
 

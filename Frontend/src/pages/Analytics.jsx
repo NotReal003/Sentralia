@@ -13,6 +13,7 @@ import {
   ChevronLeft, ChevronRight, Sparkles,
 } from 'lucide-react';
 import AdminOnly from '../components/AdminOnly';
+import { API, getAuthHeaders } from '../utils/api';
 
 const Card = ({ children, className = '', hover = true }) => (
   <div className={`bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-xl overflow-hidden ${hover ? 'hover:border-indigo-500/30 transition-all duration-300' : ''} ${className}`}>
@@ -89,7 +90,7 @@ const useAnalytics = (apiEndpoint) => {
     setStatus('loading');
     setErrorMessage(null);
     try {
-      const response = await fetch(`${apiEndpoint}/visits`, { credentials: 'include' });
+      const response = await fetch(`${apiEndpoint}/visits`, { credentials: 'include', headers: getAuthHeaders() });
       if (response.status === 403) { setStatus('admin_restricted'); return; }
       if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
       const result = await response.json();
@@ -686,7 +687,6 @@ const Analytics = () => {
     defaultColorTheme: 'indigo',
   });
 
-  const API = process.env.REACT_APP_API || 'http://localhost:3000';
   const { data: analyticsData, status, errorMessage, retry } = useAnalytics(API);
 
   const availableYears = useMemo(() => {

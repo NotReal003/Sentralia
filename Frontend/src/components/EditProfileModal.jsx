@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 import { FaSave, FaSpinner } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -7,8 +7,6 @@ const EditProfileModal = ({ isOpen, onClose, currentDisplayName, onUpdate }) => 
   const [newDisplayName, setNewDisplayName] = useState(currentDisplayName);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const API = process.env.REACT_APP_API;
-
   const handleSave = async () => {
     if (newDisplayName.length < 3 || newDisplayName.length > 16) {
       setError('Display name must be between 3 and 16 characters.');
@@ -17,10 +15,9 @@ const EditProfileModal = ({ isOpen, onClose, currentDisplayName, onUpdate }) => 
 
     try {
       setLoading(true);
-      const response = await axios.patch(
+      const response = await apiClient.patch(
         `${API}/users/display`,
-        { displayName: newDisplayName },
-        { withCredentials: true }
+        { displayName: newDisplayName }
       );
 
       if (response.status === 200) {

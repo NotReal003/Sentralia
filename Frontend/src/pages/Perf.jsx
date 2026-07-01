@@ -11,7 +11,7 @@ import {
   ReferenceArea,
 } from 'recharts';
 import { FaChartLine, FaClock } from 'react-icons/fa';
-import axios from 'axios';
+import apiClient, { API } from '../utils/api';
 
 const METRIC_CONFIG = {
   LCP: { name: 'Largest Contentful Paint', color: '#4ade80', id: 'gradLCP' },
@@ -85,12 +85,11 @@ const PerformanceDashboard = () => {
   const [lastUpdated, setLastUpdated] = useState('initializing...');
   const [visibleMetrics, setVisibleMetrics] = useState(ALL_METRICS);
   const [hoveredMetric, setHoveredMetric] = useState(null);
-  const API = process.env.REACT_APP_API;
 
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const res = await axios.get(`${API}/performance`, { withCredentials: true });
+        const res = await apiClient.get(`${API}/performance`);
         setMetrics(res.data);
         setLastUpdated(new Date().toLocaleTimeString());
       } catch (err) {
