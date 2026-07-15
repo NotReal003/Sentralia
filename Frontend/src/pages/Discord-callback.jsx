@@ -13,6 +13,7 @@ const Callback = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
+    const domainName = window.location.hostname;
 
     if (code) {
       setLoading(true);
@@ -22,8 +23,9 @@ const Callback = () => {
             const token = response.data.jwtToken;
             const redirectPath = state || response.data.redirectPath || '/profile';
 
-            document.cookie = `token=${token}; domain=notreal003.org; path=/; max-age=${6.048e8 / 1000}; httpOnly: true;`;
-
+            document.cookie = `token=${token}; domain=${domainName}; path=/; max-age=${6.048e8 / 1000}; httpOnly: true;`;
+            localStorage.setItem("token", token);
+            
             toast('Verification In Process...');
             apiClient.get(`${API}/auth/user?callback=${token}`)
               .then(userResponse => {
