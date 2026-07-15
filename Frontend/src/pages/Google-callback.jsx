@@ -12,6 +12,7 @@ const Callback = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const domainName = window.location.hostname;
 
     if (code) {
       setLoading(true);
@@ -21,7 +22,8 @@ const Callback = () => {
           if (response.status === 200) {
             const token = response.data.jwtToken;
 
-            document.cookie = `token=${token}; domain=notreal003.org; path=/; max-age=${6.048e8 / 1000}; Secure; SameSite=Strict`;
+            document.cookie = `token=${token}; domain=${domainName}; path=/; max-age=${6.048e8 / 1000}; Secure; SameSite=Strict`;
+            localStorage.setItem("token", token);
 
             toast('Verification In Process...');
             
