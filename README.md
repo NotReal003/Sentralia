@@ -31,7 +31,7 @@ Designed with security, scalability, and usability in mind, the system includes:
  
 ## 📸 UI Previews
 
-- [Screenshorts can be found here](https://support.notreal003.org/rmpsell.html#📸-ui-previews)
+- [Demo page can be found here](https://demo-sentralia.pages.dev) (Could be old version)
 
 ---
 
@@ -96,7 +96,7 @@ WEB_LOGS=discord-webhook-for-all-api-logs
 WEB_TOKEN=discord-webhook-for-request-update-notification
 ```
 
-read about it at https://docs.notreal003.org
+read about it at https://sentralia.pages.dev/docs
 
 ---
 
@@ -182,9 +182,8 @@ npm run build # Production build
 
 ## 📞 Contact & Support
 
-- 🌐 Live Site: request.notreal003.org
-- 💬 Discord: [Join Discord Server](https://notreal003.org/discord)
-- 📧 Email: noreply.notreal003@gmail.com
+- 🌐 Live Site: [request-notreal003.pages.dev](request-notreal003.pages.dev)
+- 💬 Discord: [Join Discord Server](https://notreal003.pages.dev/discord)
 
 ---
 - Sentralia was known as Request Management Portal
