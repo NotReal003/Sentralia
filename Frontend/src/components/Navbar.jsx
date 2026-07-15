@@ -17,6 +17,7 @@ export default function Navbar({ isAuthenticated }) {
   const [LogoutModal, setLogoutModal] = useState(false);
   const [logout, setLogout] = useState(false);
   const navigate = useNavigate();
+  const domainName = window.location.hostname;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -29,8 +30,9 @@ export default function Navbar({ isAuthenticated }) {
         });
 
         if (res.status === 403) {
-          document.cookie = 'token=; Max-Age=0; path=/; domain=notreal003.org; secure';
-          document.cookie = 'token=; Max-Age=0; path=/; domain=request.notreal003.org; secure';
+          document.cookie = `token=; Max-Age=0; path=/; domain=${domainName}; secure`;
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
           console.log('Cookie cleared');
           setLoading(false);
           setShowAlert(true);
@@ -51,7 +53,7 @@ export default function Navbar({ isAuthenticated }) {
         if (userData.staff === true) {
           toast('Welcome Staff Member');
         } else {
-          toast("Happy Independence Day 🇮🇳");
+          toast("Welcome");
         }
       } catch (error) {
         console.error(error);
@@ -81,7 +83,9 @@ export default function Navbar({ isAuthenticated }) {
         setLogoutModal(false);
       }
 
-       document.cookie = 'token=; Max-Age=0; path=/; domain=notreal003.org; secure';
+       document.cookie = `token=; Max-Age=0; path=/; domain=${domainName}; secure`;
+       localStorage.removeItem("token");
+       localStorage.removeItem("user");
       window.location.href = '/';
     } catch (error) {
       setShowAlert(true);
