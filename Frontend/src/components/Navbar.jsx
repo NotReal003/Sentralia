@@ -158,7 +158,7 @@ export default function Navbar({ isAuthenticated }) {
               <div className="dropdown dropdown-bottom dropdown-end">
                 <div tabIndex={0} role="button" className="btn m-1 btn-sm flex items-center justify-center"><MdNavigateNext />Requests</div>
                 <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                  <li><Link to="https://notreal003.org">Home <LiaExternalLinkAltSolid /></Link></li>
+                  <li><Link to="https://notreal003.pages.dev">Home <LiaExternalLinkAltSolid /></Link></li>
                   <li><Link to="/support">Support</Link></li>
                   <li><Link to="/apply">Application</Link></li>
                   <li><Link to="/report">Report Activity</Link></li>
