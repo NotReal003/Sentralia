@@ -24,8 +24,8 @@ import {
   Comming,
   AdminUsers,
   Performance,
+  AuditLogs,
 } from './pages';
-import AdsD from './components/Ads-d';
 import { Navigate, useLocation } from "react-router-dom";
 
 function RequireLogin({ children, isAuthenticated }) {
@@ -61,6 +61,7 @@ const routes = (isAuthenticated) => [
   { path: "/about", element: <About /> },
   { path: "/analytics", element: <RequireLogin isAuthenticated={isAuthenticated}><Analytics /></RequireLogin> },
   { path: "/admin/users", element: <RequireLogin isAuthenticated={isAuthenticated}><AdminUsers /></RequireLogin> },
+  { path: "/admin/audit-logs", element: <RequireLogin isAuthenticated={isAuthenticated}><AuditLogs /></RequireLogin> },
   { path: "/performance", element: <RequireLogin isAuthenticated={isAuthenticated}><Performance /></RequireLogin> },
 ];
 
