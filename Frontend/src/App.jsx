@@ -5,7 +5,6 @@ import MaintenanceMode from './components/NoAPI';
 import routeConfig from './routes';
 import toast, { Toaster } from 'react-hot-toast';
 import apiClient, { API } from './utils/api';
-import Ads from './components/Ads';
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
