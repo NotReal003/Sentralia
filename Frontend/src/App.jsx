@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { Navbar, Footer, Unavailability } from './components';
+import { Navbar, Footer } from './components';
 import MaintenanceMode from './components/NoAPI';
 import routeConfig from './routes';
 import toast, { Toaster } from 'react-hot-toast';
@@ -91,7 +91,6 @@ const App = () => {
     <Router>
       <div className="relative min-h-screen">
         <Navbar isAuthenticated={isAuthenticated} />
-        <Unavailability/>
         
         <main className="container mx-auto">
           <Routes>
