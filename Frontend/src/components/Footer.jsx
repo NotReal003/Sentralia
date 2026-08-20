@@ -7,8 +7,8 @@ const Footer = () => {
       <div class="mx-auto w-full p-4 py-6 lg:py-8">
         <div class="md:flex md:justify-between">
           <div class="mb-6 md:mb-0">
-            <a href="https://sentralia.notreal003.org/" class="flex items-center">
-              <img src="https://notreal003.org/IMG_3231.png" class="h-8 w-8 me-3 rounded-xl object-cover" alt="RMP" />
+            <a href="https://sentralia.pages.dev/" class="flex items-center">
+              <img src="https://notreal003.pages.dev/IMG_3231.png" class="h-8 w-8 me-3 rounded-xl object-cover" alt="RMP" />
               <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white hover:underline">Sentralia</span>
             </a>
           </div>
@@ -17,13 +17,13 @@ const Footer = () => {
               <h2 class="mb-4 text-sm font-semibold text-gray-400 uppercase dark:text-white">Resources</h2>
               <ul class="text-gray-500 dark:text-gray-400 font-medium">
               <li class="mt-2 mb-2">
-                <a href="https://support.notreal003.org" class="hover:underline">Support</a>
+                <a href="https://support-notreal003.pages.dev" class="hover:underline">Support</a>
               </li>
                 <li class="mb-2">
-                  <a href="https://sentralia.notreal003.org" class="hover:underline">About This Portal</a>
+                  <a href="https://sentralia.pages.dev" class="hover:underline">About This Portal</a>
                 </li>
                 <li class="mt-2 mb-2">
-                  <a href="https://store.notreal003.org" class="hover:underline">Get Request Portal</a>
+                  <a href="https://github.com/NotReal003/Sentralia" class="hover:underline">Get Request Portal</a>
                 </li>
               </ul>
             </div>
@@ -55,13 +55,13 @@ const Footer = () => {
               <h2 class="mb-6 text-sm font-semibold text-gray-400 uppercase dark:text-white">Important</h2>
               <ul class="text-gray-500 dark:text-gray-400 font-medium">
                 <li class="mb-4">
-                  <a href="https://support.notreal003.org/privacy" class="hover:underline">Privacy Policy</a>
+                  <a href="https://support-notreal003.pages.dev/privacy" class="hover:underline">Privacy Policy</a>
                 </li>
                 <li class="mb-4">
-                  <a href="https://support.notreal003.org/terms" class="hover:underline">Terms of Service</a>
+                  <a href="https://support-notreal003.pages.dev/terms" class="hover:underline">Terms of Service</a>
                 </li>
                 <li class="mb-4">
-                  <a href="https://pay.notreal003.org" class="hover:underline">Support This Project</a>
+                  <a href="https://pay-notreal003.pages.dev" class="hover:underline">Support This Project</a>
                 </li>
               </ul>
             </div>
