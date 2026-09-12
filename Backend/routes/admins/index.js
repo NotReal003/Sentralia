@@ -7,28 +7,29 @@ const fs = require('fs');
 const path = require('path');
 const User = require('../../models/User');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { google } = require('googleapis');
-const dns = require('dns');
-dns.setDefaultResultOrder('ipv4first'); 
-
 
 const genAI = process.env.GEMINI_KEY ? new GoogleGenerativeAI(process.env.GEMINI_KEY) : null;
 
+// Gemini handler
 async function runGemini(prompt) {
   if (!genAI) throw new Error('GEMINI_KEY not configured');
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+  // update model if outdated
+  const model = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
   const result = await model.generateContent(prompt);
-  const response = await result.response;
-  return response.text().trim();
+  
+  return result.response.text().trim();
 }
 
-router.post('/generate', async (req, res) => {
-  return res.status(503).json({ success: false, error: "maintenance", message: "This route is in maintenance" });
+const checkAuth = async (req, res, next) => {
   const user = await req.user;
   if (!user || (!user.admin && !user.staff)) {
     return res.status(403).json({ message: 'Unauthorized' });
   }
+  next();
+};
 
+router.post('/generate', checkAuth, async (req, res) => {
   const { request } = req.body;
   const prompt = `You're an admin reviewing this request: ${JSON.stringify(request)}. Suggest a professional review message.`;
 
@@ -41,13 +42,7 @@ router.post('/generate', async (req, res) => {
   }
 });
 
-router.post('/analyze', async (req, res) => {
-  return res.status(503).json({ success: false, error: "maintenance", message: "This route is in maintenance" });
-  const user = await req.user;
-  if (!user || (!user.admin && !user.staff)) {
-    return res.status(403).json({ message: 'Unauthorized' });
-  }
-
+router.post('/analyze', checkAuth, async (req, res) => {
   const { request } = req.body;
   const prompt = `Summarize this request in 1 sentence and recommend a status (APPROVED or DENIED only):\n${JSON.stringify(request)}`;
 
@@ -56,6 +51,7 @@ router.post('/analyze', async (req, res) => {
     const lines = output.split('\n');
     const summary = lines[0] || output;
     const recommendation = lines.find(line => line.includes('APPROVED') || line.includes('DENIED')) || '';
+    
     res.json({ summary, recommendation: recommendation.trim() });
   } catch (error) {
     console.error(error);
@@ -63,13 +59,7 @@ router.post('/analyze', async (req, res) => {
   }
 });
 
-router.post('/rephrase', async (req, res) => {
-  return res.status(503).json({ success: false, error: "maintenance", message: "This route is in maintenance" });
-  const user = await req.user;
-  if (!user || (!user.admin && !user.staff)) {
-    return res.status(403).json({ message: 'Unauthorized' });
-  }
-
+router.post('/rephrase', checkAuth, async (req, res) => {
   const { message, style } = req.body;
   const prompt = `Rewrite the following message in a ${style} tone:\n\n"${message}"`;
 
@@ -82,13 +72,7 @@ router.post('/rephrase', async (req, res) => {
   }
 });
 
-router.post('/chat', async (req, res) => {
-  return res.status(503).json({ success: false, error: "maintenance", message: "This route is in maintenance" });
-  const user = await req.user;
-  if (!user || (!user.admin && !user.staff)) {
-    return res.status(403).json({ message: 'Unauthorized' });
-  }
-
+router.post('/chat', checkAuth, async (req, res) => {
   const { prompt, request } = req.body;
   const fullPrompt = `This is a request: ${JSON.stringify(request)}\n\nNow answer the following question from an admin's perspective:\n${prompt}`;
 

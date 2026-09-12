@@ -23,7 +23,6 @@ const CONFIG = {
     '/collect/pay', '/collect/social', '/collect/support', '/collect/stream',
     '/collect/request/producthunt', '/collect/demo', '/collect/players', '/collect/product',
     '/collect/linkclicked', '/producthunt', '/source', '/Source', '/players',
-    '/video', '/Video', '/season5/file/1', '/season5/file/2', '/minecraft/hotbarslot', '/check-username',
   ]),
   IGNORE_PATHS: new Set(['/health']), // Routes that trigger NO logging
   SERVER_PATHS: new Set(['/server/api-status', '/server/manage-api']),

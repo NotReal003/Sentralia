@@ -25,9 +25,10 @@ ERROR_WEBHOOK=discord-webhook-for-tracking-errorlogs
 USER_AUTH_WEBTOKEN=https://discord.com/api/webhooks/…
 WEB_LOGS=discord-webhook-for-all-api-logs
 WEB_TOKEN=discord-webhook-for-request-update-notification
+GEMINI_KEY=google_studio_gemini_key
 ```
 
-read about it at https://docs.notreal003.org
+read about it at https://sentralia.pages.dev/docs
 
 ---
 

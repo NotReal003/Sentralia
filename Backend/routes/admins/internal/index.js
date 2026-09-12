@@ -16,8 +16,8 @@ router.get('/code/blacklist', async (req, res) => {
   }
 
   try {
-    const blacklist = await blackList.find();
-    res.status(200).json(blacklist);
+    const count = await blackList.countDocuments();
+    res.status(200).json({ count });
   } catch (err) {
     res.status(500).json({ message: 'Error fetching blacklist' });
   }
