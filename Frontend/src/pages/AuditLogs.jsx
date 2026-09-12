@@ -12,6 +12,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import AdminOnly from '../components/AdminOnly';
+import apiClient, { API } from '../utils/api';
 
 const formatTimestamp = (dateString) => {
   if (!dateString) return 'Unknown date';
@@ -135,14 +136,7 @@ export default function App() {
     setError(null);
     
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch('https://api-notreal003.up.railway.app/admin/audit-logs', {
-        headers: {
-          'authorization': token || '',
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await apiClient.get(`${API}/admin/audit-logs`);
 
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
