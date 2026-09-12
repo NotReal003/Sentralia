@@ -1,77 +1,25 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../../models/User');
-const AnalyticsEvent = require('../../models/AnalyticsEvent');
 const Count = require('../../models/Count');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
-const axios = require('axios');
 
-router.get("/health", (req, res) => {
+router.get("/health", (res) => {
   res.status(200).json({ status: "ok" });
 });
-
-router.get('/check-username', async (req, res) => {
-    const { username } = req.query;
-
-    if (!username) {
-        return res.status(400).json({ error: 'Username is required' });
-    }
-
-    console.log(`\nChecking: ${username}...`);
-
-    try {
-        const apiUrl = `https://backend.accounts.hytale.com/api/account/username-reservations/availability`;
-        
-        const response = await axios.get(apiUrl, {
-            params: { username: username },
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'Origin': 'https://accounts.hytale.com',
-                'Referer': 'https://accounts.hytale.com/'
-            },
-            validateStatus: function (status) {
-                return status < 500; 
-            }
-        });
-
-        console.log(`API Status: ${response.status}`);
-        
-        return res.json(response.data);
-
-    } catch (error) {
-        console.error('Proxy Error:', error.message);
-        
-        return res.status(500).json({ error: 'Failed to reach Hytale Backend' });
-    }
-});
-
 
 router.get('/images/logo', (req, res) => {
   const imagePath = path.join(__dirname, 'routes', 'admins', 'IMG_3275.jpeg');
   res.sendFile(imagePath);
 });
 
-router.get("/source", (req, res) => {
-  res.redirect('https://sentralia.notreal003.org');
+router.get("/source", (res) => {
+  res.redirect('https://sentralia.pages.dev');
 });
 
-router.get("/producthunt", (req, res) => {
-  res.redirect('https://www.producthunt.com/products/request-managemen-portal');
-});
-
-router.get("/video", (req, res) => {
-  res.redirect('https://youtu.be/Rm79yXU3p80?si=KeoRH2Ayv1-H__y8');
-});
-router.get("/season5/file/1", (req, res) => {
-  res.redirect('https://bit.ly/4rsJERu');
-});
-router.get("/season5/file/2", (req, res) => {
-  res.redirect('https://bit.ly/3Mtv6AR');
-});
-
-router.get("/minecraft/hotbarslot", (req, res) => {
-  res.redirect('https://shrinkme.click/nZ5fUEg');
+router.get("/producthunt", (res) => {
+  res.redirect('https://www.producthunt.com/products/sentralia');
 });
 
 const adminLimiter = rateLimit({
@@ -82,7 +30,7 @@ const adminLimiter = rateLimit({
 
 function maskEmail(email) {
   const [localPart, domain] = email.split('@');
-  const visiblePart = localPart.slice(-4); // Keep last 4 characters of local part visible
+  const visiblePart = localPart.slice(-4); 
   return `***${visiblePart}@${domain}`;
 }
 const formatSeries = (data, keyField) => {
