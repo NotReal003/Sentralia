@@ -53,9 +53,10 @@ const Profile = () => {
 
     setIsSubmittingDelete(true);
     try {
-      const response = await apiClient.post(`${API}/requests/account-deletion`, {
+      const response = await apiClient.post(`${API}/requests`, {
+        type: 4,
         messageLink,
-        additionalInfo
+        additionalInfo,
       });
       
       toast.success(response.data.message || 'Account deletion request submitted.');
