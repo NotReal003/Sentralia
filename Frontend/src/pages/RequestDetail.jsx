@@ -242,7 +242,7 @@ function RequestDetail() {
                 }
 
                 const typeResponse = await apiClient.get(
-                    `${API}/requests/${requestData.requestType}`
+                    `${API}/requests/submissions/${requestData.requestType}`
                 );
 
                 setRequest(requestData);
