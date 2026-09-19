@@ -53,7 +53,7 @@ const Profile = () => {
 
     setIsSubmittingDelete(true);
     try {
-      const response = await apiClient.post(`${API}/requests`, {
+      const response = await apiClient.post(`${API}/requests/4`, {
         type: 4,
         messageLink,
         additionalInfo,
