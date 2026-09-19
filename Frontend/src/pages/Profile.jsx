@@ -158,7 +158,6 @@ const Profile = () => {
 
     try {
       const response = await apiClient.post(`${API}/requests/4`, {
-        type: 4,
         fields: deleteFields
       });
 
