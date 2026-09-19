@@ -157,9 +157,7 @@ const Profile = () => {
     setIsSubmittingDelete(true);
 
     try {
-      const response = await apiClient.post(`${API}/requests/4`, {
-        fields: deleteFields
-      });
+      const response = await apiClient.post(`${API}/requests/4`, { deleteFields });
 
       toast.success(
         response.data.message ||
