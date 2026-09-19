@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 export const API = process.env.REACT_APP_API;         // e.g. /api  (proxied)
-export const APIURL = process.env.REACT_APP_APIURL;   // e.g. https://api.notreal003.org
+export const APIURL = process.env.REACT_APP_APIURL;  // e.g. https://api.notreal003.org
+export const MAIN_API = process.env.REACT_APP_APIURL;
 
 export function getToken() {
   return (
