@@ -45,7 +45,7 @@ const Profile = () => {
         ] = await Promise.all([
           apiClient.get(`${API}/users/@me`),
           apiClient.get(`${API}/requests`),
-          apiClient.get(`${API}/requests/4`)
+          apiClient.get(`${API}/requests/submissions/4`)
         ]);
 
         setUser(userResponse.data);
