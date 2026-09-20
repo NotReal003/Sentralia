@@ -51,6 +51,7 @@ const SpinnerIcon = ({ className = 'h-5 w-5' }) => (
         />
     </svg>
 );
+import { FaSpinner } from "react-icons/fa";
 
 const Support = () => {
     const [requestConfig, setRequestConfig] = useState(null);
