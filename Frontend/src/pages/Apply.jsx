@@ -175,72 +175,119 @@ const Apply = () => {
       return null;
     }
 
-    if (
-      field.type === FormFieldType.SELECT ||
-      field.type === FormFieldType.RADIO
-    ) {
-      return null;
-    }
+    const value = fields[field.name];
 
-    if (field.type !== FormFieldType.TEXT_INPUT) {
-      return null;
-    }
+    if (field.type === FormFieldType.TEXT_INPUT) {
+      const inputValue = value ?? '';
+      const textarea = isTextArea(field);
 
-    const value = fields[field.name] ?? '';
-    const textarea = isTextArea(field);
+      const remaining =
+        field.maxLength !== undefined
+          ? field.maxLength - getCharacterCount(inputValue)
+          : null;
 
-    const remaining =
-      field.maxLength !== undefined
-        ? field.maxLength - getCharacterCount(value)
-        : null;
+      return (
+        <div key={field.name}>
+          <label
+            htmlFor={field.name}
+            className="block text-sm font-semibold mb-1"
+          >
+            {field.label}
+            {field.required && (
+              <span className="text-red-400"> *</span>
+            )}
+          </label>
 
-    return (
-      <div key={field.name}>
-        <label
-          htmlFor={field.name}
-          className="block text-sm font-semibold mb-1"
-        >
-          {field.label}
-          {field.required && (
-            <span className="text-red-400"> *</span>
+          {field.description && (
+            <p className="text-xs text-gray-500 mb-2">
+              {field.description}
+            </p>
           )}
-        </label>
 
-        {field.description && (
-          <p className="text-xs text-gray-500 mb-2">
-            {field.description}
-          </p>
-        )}
+          {textarea ? (
+            <textarea
+              id={field.name}
+              name={field.name}
+              className="w-full p-3 rounded-lg bg-[#111]/50 border border-gray-700 text-gray-200 focus:outline-none focus:border-purple-500 transition-colors resize-none"
+              rows={4}
+              required={field.required}
+              minLength={field.minLength}
+              maxLength={field.maxLength}
+              placeholder={field.placeholder || ''}
+              value={inputValue}
+              onChange={(e) =>
+                handleFieldChange(
+                  field.name,
+                  e.target.value
+                )
+              }
+            />
+          ) : (
+            <input
+              id={field.name}
+              name={field.name}
+              type={getInputType(field)}
+              className="w-full p-3 rounded-lg bg-[#111]/50 border border-gray-700 text-gray-200 focus:outline-none focus:border-purple-500 transition-colors"
+              required={field.required}
+              minLength={field.minLength}
+              maxLength={field.maxLength}
+              placeholder={field.placeholder || ''}
+              value={inputValue}
+              onChange={(e) =>
+                handleFieldChange(
+                  field.name,
+                  e.target.value
+                )
+              }
+            />
+          )}
 
-        {textarea ? (
-          <textarea
-            id={field.name}
-            name={field.name}
-            className="w-full p-3 rounded-lg bg-[#111]/50 border border-gray-700 text-gray-200 focus:outline-none focus:border-purple-500 transition-colors resize-none"
-            rows={4}
-            required={field.required}
-            minLength={field.minLength}
-            maxLength={field.maxLength}
-            placeholder={field.placeholder || ''}
-            value={value}
-            onChange={(e) =>
-              handleFieldChange(
-                field.name,
-                e.target.value
-              )
-            }
-          />
-        ) : (
+          {remaining !== null && (
+            <p
+              className={`text-xs mt-1 ${
+                remaining < 0
+                  ? 'text-red-400'
+                  : 'text-gray-500'
+              }`}
+            >
+              {remaining} characters remaining
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    if (field.type === FormFieldType.NUMBER_INPUT) {
+      const inputValue = value ?? '';
+
+      return (
+        <div key={field.name}>
+          <label
+            htmlFor={field.name}
+            className="block text-sm font-semibold mb-1"
+          >
+            {field.label}
+            {field.required && (
+              <span className="text-red-400"> *</span>
+            )}
+          </label>
+
+          {field.description && (
+            <p className="text-xs text-gray-500 mb-2">
+              {field.description}
+            </p>
+          )}
+
           <input
             id={field.name}
             name={field.name}
-            type={getInputType(field)}
+            type="number"
             className="w-full p-3 rounded-lg bg-[#111]/50 border border-gray-700 text-gray-200 focus:outline-none focus:border-purple-500 transition-colors"
             required={field.required}
-            minLength={field.minLength}
-            maxLength={field.maxLength}
+            min={field.min}
+            max={field.max}
             placeholder={field.placeholder || ''}
-            value={value}
+            value={inputValue}
             onChange={(e) =>
               handleFieldChange(
                 field.name,
@@ -248,21 +295,136 @@ const Apply = () => {
               )
             }
           />
-        )}
+        </div>
+      );
+    }
 
-        {remaining !== null && (
-          <p
-            className={`text-xs mt-1 ${
-              remaining < 0
-                ? 'text-red-400'
-                : 'text-gray-500'
-            }`}
+    if (field.type === FormFieldType.SELECT) {
+      const isMulti = field.maxValues > 1;
+      const selectedValues = isMulti
+        ? Array.isArray(value)
+          ? value
+          : []
+        : value ?? '';
+
+      return (
+        <div key={field.name}>
+          <label
+            htmlFor={field.name}
+            className="block text-sm font-semibold mb-1"
           >
-            {remaining} characters remaining
-          </p>
-        )}
-      </div>
-    );
+            {field.label}
+            {field.required && (
+              <span className="text-red-400"> *</span>
+            )}
+          </label>
+
+          {field.description && (
+            <p className="text-xs text-gray-500 mb-2">
+              {field.description}
+            </p>
+          )}
+
+          <select
+            id={field.name}
+            name={field.name}
+            multiple={isMulti}
+            required={field.required}
+            value={selectedValues}
+            onChange={(e) => {
+              if (isMulti) {
+                const selected = Array.from(
+                  e.target.selectedOptions,
+                  (option) => option.value
+                );
+
+                handleFieldChange(
+                  field.name,
+                  selected
+                );
+              } else {
+                handleFieldChange(
+                  field.name,
+                  e.target.value
+                );
+              }
+            }}
+            className="w-full p-3 rounded-lg bg-[#111]/50 border border-gray-700 text-gray-200 focus:outline-none focus:border-purple-500 transition-colors"
+          >
+            {!isMulti && (
+              <option value="">
+                {field.placeholder || 'Select an option'}
+              </option>
+            )}
+
+            {(field.options || []).map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          {isMulti && (
+            <p className="text-xs text-gray-500 mt-1">
+              Select between {field.minValues ?? 0} and{' '}
+              {field.maxValues ?? field.options?.length ?? 0} options.
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    if (field.type === FormFieldType.RADIO) {
+      return (
+        <div key={field.name}>
+          <label className="block text-sm font-semibold mb-1">
+            {field.label}
+            {field.required && (
+              <span className="text-red-400"> *</span>
+            )}
+          </label>
+
+          {field.description && (
+            <p className="text-xs text-gray-500 mb-2">
+              {field.description}
+            </p>
+          )}
+
+          <div className="space-y-2">
+            {(field.options || []).map((option) => (
+              <label
+                key={option}
+                className="flex items-center gap-3 p-3 rounded-lg bg-[#111]/50 border border-gray-700 cursor-pointer hover:border-purple-500/50 transition-colors"
+              >
+                <input
+                  type="radio"
+                  name={field.name}
+                  value={option}
+                  checked={value === option}
+                  required={field.required}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      field.name,
+                      e.target.value
+                    )
+                  }
+                  className="radio radio-primary"
+                />
+
+                <span className="text-gray-200">
+                  {option}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   if (loading) {
