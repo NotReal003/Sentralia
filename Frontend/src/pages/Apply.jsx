@@ -37,7 +37,7 @@ const Apply = () => {
     const fetchRequestConfig = async () => {
       try {
         const response = await apiClient.get(
-          `${API}/requests/types/3`
+          `${API}/requests/submissions/3`
         );
 
         setRequestConfig(response.data);
