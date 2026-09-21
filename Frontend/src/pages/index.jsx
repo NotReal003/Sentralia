@@ -4,7 +4,6 @@ export { default as Login } from './Login';
 export { default as Success } from './Success';
 export { default as One } from './One';
 export { default as Admin } from './Admin';
-export { default as RequestDetail } from './RequestDetail';
 export { default as AdminDetail } from './AdminDetail';
 export { default as Discord_Callback } from './Discord-callback';
 export { default as Google_Callback } from './Google-callback';
