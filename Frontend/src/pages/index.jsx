@@ -1,7 +1,4 @@
 export { default as Home } from './Home';
-export { default as ReportForm } from './ReportForm';
-export { default as Support } from './Support';
-export { default as Apply } from './Apply';
 export { default as NotFound } from './404';
 export { default as Login } from './Login';
 export { default as Success } from './Success';

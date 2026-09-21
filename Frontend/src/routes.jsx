@@ -1,8 +1,5 @@
 import {
   Home,
-  ReportForm,
-  Support,
-  Apply,
   NotFound,
   Login,
   Success,
@@ -41,10 +38,7 @@ function RequireLogin({ children, isAuthenticated }) {
 
 const routes = (isAuthenticated) => [
   { path: "/", element: <RequireLogin isAuthenticated={isAuthenticated}><Home /></RequireLogin> },
-  { path: "/report", element: <RequireLogin isAuthenticated={isAuthenticated}><ReportForm /></RequireLogin> },
   { path: "/request/:requestType", element: <RequireLogin isAuthenticated={isAuthenticated}><Request /></RequireLogin> },
-  { path: "/support", element: <RequireLogin isAuthenticated={isAuthenticated}><Support /></RequireLogin> },
-  { path: "/apply", element: <RequireLogin isAuthenticated={isAuthenticated}><Apply /></RequireLogin> },
   { path: "/login", element: <Login /> },
   { path: "/success", element: <RequireLogin isAuthenticated={isAuthenticated}><Success /></RequireLogin> },
   { path: "/one", element: <RequireLogin isAuthenticated={isAuthenticated}><One /></RequireLogin> },
