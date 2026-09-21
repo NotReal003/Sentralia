@@ -3,9 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import apiClient, { API } from '../utils/api';
 import { FaSpinner } from "react-icons/fa";
+import {
+    FormFieldType,
+    TextInputStyle,
+    getInitialFieldValue,
+    getInputType,
+    isTextArea,
+    validateRequestFields,
+    normalizeRequestFields,
+    getCharacterCount
+} from '../utils/requestForm';
 
 const MailIcon = ({ className = 'h-6 w-6' }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail preview-icon"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={className}
+    >
+        <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+    </svg>
 );
 
 const SendIcon = ({ className = 'h-5 w-5' }) => (
@@ -57,7 +81,6 @@ const Support = () => {
     const [requestConfig, setRequestConfig] = useState(null);
     const [fields, setFields] = useState({});
     const [agree, setAgree] = useState(false);
-
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -66,15 +89,19 @@ const Support = () => {
     useEffect(() => {
         const fetchRequestConfig = async () => {
             try {
-                const response = await apiClient.get(`${API}/requests/submissions/1`);
+                const response = await apiClient.get(
+                    `${API}/requests/types/1`
+                );
 
                 setRequestConfig(response.data);
 
                 const initialFields = {};
 
                 for (const field of response.data.fields || []) {
-                    if (!field.disabled) {
-                        initialFields[field.name] = '';
+                    const value = getInitialFieldValue(field);
+
+                    if (value !== undefined) {
+                        initialFields[field.name] = value;
                     }
                 }
 
@@ -116,69 +143,22 @@ const Support = () => {
             return;
         }
 
-        for (const field of requestConfig.fields) {
-            if (field.disabled) {
-                continue;
-            }
+        const validationError = validateRequestFields(
+            requestConfig.fields,
+            fields
+        );
 
-            const value = fields[field.name];
-
-            const empty =
-                value === undefined ||
-                value === null ||
-                (
-                    typeof value === 'string' &&
-                    value.trim().length === 0
-                );
-
-            if (field.required && empty) {
-                toast.error(`${field.label} is required.`);
-                return;
-            }
-
-            if (empty) {
-                continue;
-            }
-
-            const stringValue = String(value);
-
-            if (
-                field.minLength !== undefined &&
-                stringValue.length < field.minLength
-            ) {
-                toast.error(
-                    `${field.label} must be at least ${field.minLength} characters long.`
-                );
-                return;
-            }
-
-            if (
-                field.maxLength !== undefined &&
-                stringValue.length > field.maxLength
-            ) {
-                toast.error(
-                    `${field.label} must not exceed ${field.maxLength} characters.`
-                );
-                return;
-            }
+        if (validationError) {
+            toast.error(validationError.message);
+            return;
         }
 
         setIsSubmitting(true);
 
-        const submittedFields = {};
-
-        for (const field of requestConfig.fields) {
-            const value = fields[field.name];
-
-            if (value === undefined || value === null) {
-                continue;
-            }
-
-            submittedFields[field.name] =
-                typeof value === 'string'
-                    ? value.trim()
-                    : value;
-        }
+        const submittedFields = normalizeRequestFields(
+            requestConfig.fields,
+            fields
+        );
 
         try {
             const response = await apiClient.post(
@@ -229,14 +209,23 @@ const Support = () => {
 
         const value = fields[field.name] ?? '';
 
-        const isTextarea =
-            field.style === 2 ||
-            field.maxLength > 500;
-
         const remaining =
             field.maxLength !== undefined
-                ? field.maxLength - String(value).length
+                ? field.maxLength - getCharacterCount(value)
                 : null;
+
+        if (
+            field.type === FormFieldType.SELECT ||
+            field.type === FormFieldType.RADIO
+        ) {
+            return null;
+        }
+
+        if (field.type !== FormFieldType.TEXT_INPUT) {
+            return null;
+        }
+
+        const textarea = isTextArea(field);
 
         return (
             <div className="form-control" key={field.name}>
@@ -245,7 +234,7 @@ const Support = () => {
                     className="block text-sm font-medium text-gray-200 mb-2"
                 >
                     {field.label}
-                    {field.required && !field.label?.includes('*') && (
+                    {field.required && (
                         <span className="text-red-400"> *</span>
                     )}
                 </label>
@@ -256,12 +245,12 @@ const Support = () => {
                     </p>
                 )}
 
-                {isTextarea ? (
+                {textarea ? (
                     <textarea
                         id={field.name}
                         name={field.name}
                         className="block w-full rounded-lg border border-gray-600 bg-gray-900/50 px-3 py-2 text-white placeholder-gray-500 transition-colors duration-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
-                        rows={field.style === 2 ? 4 : 5}
+                        rows={4}
                         placeholder={field.placeholder || ''}
                         value={value}
                         onChange={(e) =>
@@ -278,7 +267,7 @@ const Support = () => {
                     <input
                         id={field.name}
                         name={field.name}
-                        type="text"
+                        type={getInputType(field)}
                         className="block w-full rounded-lg border border-gray-600 bg-gray-900/50 px-3 py-2 text-white placeholder-gray-500 transition-colors duration-300 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder={field.placeholder || ''}
                         value={value}
