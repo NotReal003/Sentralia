@@ -511,7 +511,7 @@ const RequestDetails = ({
 
           <button
             onClick={onBack}
-            className="mt-4 sm:mt-0 px-5 py-2.5 bg-[#1a1a1a] hover:bg-[#252525] transition-colors text-white rounded-lg border border-gray-800 flex items-center"
+            className="mt-4 sm:mt-0 px-5 py-2.5 bg-[#1a1a1a] hover:bg-[#252525] transition-colors text-white rounded-lg flex items-center"
           >
             <IoMdArrowRoundBack className="mr-2" />
             Go Back
