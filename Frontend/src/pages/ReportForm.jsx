@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { IoSend } from "react-icons/io5";
 import { ImExit } from "react-icons/im";
 import { FaSpinner, FaShieldHalved } from "react-icons/fa";
+import { FaShieldHalved } from "react-icons/fa6";
 import toast, { Toaster } from 'react-hot-toast';
 import DOMPurify from "dompurify";
 import apiClient, { API } from '../utils/api';
