@@ -7,6 +7,15 @@ import { FaPeopleGroup } from "react-icons/fa6";
 import toast, { Toaster } from 'react-hot-toast';
 import DOMPurify from "dompurify";
 import apiClient, { API } from '../utils/api';
+import {
+  FormFieldType,
+  getInitialFieldValue,
+  getInputType,
+  isTextArea,
+  validateRequestFields,
+  normalizeRequestFields,
+  getCharacterCount
+} from '../utils/requestForm';
 
 const Apply = () => {
   const [requestConfig, setRequestConfig] = useState(null);
@@ -27,15 +36,19 @@ const Apply = () => {
   useEffect(() => {
     const fetchRequestConfig = async () => {
       try {
-        const response = await apiClient.get(`${API}/requests/submissions/3`);
+        const response = await apiClient.get(
+          `${API}/requests/types/3`
+        );
 
         setRequestConfig(response.data);
 
         const initialFields = {};
 
         for (const field of response.data.fields || []) {
-          if (!field.disabled) {
-            initialFields[field.name] = '';
+          const value = getInitialFieldValue(field);
+
+          if (value !== undefined) {
+            initialFields[field.name] = value;
           }
         }
 
@@ -75,66 +88,31 @@ const Apply = () => {
       return;
     }
 
-    for (const field of requestConfig.fields) {
-      if (field.disabled) {
-        continue;
-      }
+    const validationError = validateRequestFields(
+      requestConfig.fields,
+      fields
+    );
 
-      const value = fields[field.name];
-
-      const empty =
-        value === undefined ||
-        value === null ||
-        (typeof value === 'string' && value.trim().length === 0);
-
-      if (field.required && empty) {
-        toast.error(`${field.label} is required.`);
-        return;
-      }
-
-      if (empty) {
-        continue;
-      }
-
-      const stringValue = String(value);
-
-      if (
-        field.minLength !== undefined &&
-        stringValue.length < field.minLength
-      ) {
-        toast.error(
-          `${field.label} must be at least ${field.minLength} characters long.`
-        );
-        return;
-      }
-
-      if (
-        field.maxLength !== undefined &&
-        stringValue.length > field.maxLength
-      ) {
-        toast.error(
-          `${field.label} must not exceed ${field.maxLength} characters.`
-        );
-        return;
-      }
+    if (validationError) {
+      toast.error(validationError.message);
+      return;
     }
 
     setIsSubmitting(true);
 
-    const sanitizedFields = {};
+    const normalizedFields = normalizeRequestFields(
+      requestConfig.fields,
+      fields
+    );
 
-    for (const field of requestConfig.fields) {
-      const value = fields[field.name];
-
-      if (value === undefined || value === null) {
-        continue;
-      }
-
-      sanitizedFields[field.name] =
+    const sanitizedFields = Object.fromEntries(
+      Object.entries(normalizedFields).map(([name, value]) => [
+        name,
         typeof value === 'string'
           ? sanitize(value)
-          : value;
-    }
+          : value
+      ])
+    );
 
     try {
       const response = await apiClient.post(
@@ -147,12 +125,14 @@ const Apply = () => {
         'Application submitted successfully.'
       );
 
-      setFields((prev) => {
+      setFields(() => {
         const resetFields = {};
 
         for (const field of requestConfig.fields || []) {
-          if (!field.disabled) {
-            resetFields[field.name] = '';
+          const value = getInitialFieldValue(field);
+
+          if (value !== undefined) {
+            resetFields[field.name] = value;
           }
         }
 
@@ -195,22 +175,35 @@ const Apply = () => {
       return null;
     }
 
-    const value = fields[field.name] ?? '';
+    if (
+      field.type === FormFieldType.SELECT ||
+      field.type === FormFieldType.RADIO
+    ) {
+      return null;
+    }
 
-    /*
-     * Your config currently uses:
-     * style: 1 -> input
-     * style: 2 -> textarea
-     */
-    const isTextarea =
-      field.style === 2 ||
-      field.maxLength > 500;
+    if (field.type !== FormFieldType.TEXT_INPUT) {
+      return null;
+    }
+
+    const value = fields[field.name] ?? '';
+    const textarea = isTextArea(field);
+
+    const remaining =
+      field.maxLength !== undefined
+        ? field.maxLength - getCharacterCount(value)
+        : null;
 
     return (
       <div key={field.name}>
-        <label className="block text-sm font-semibold mb-1">
+        <label
+          htmlFor={field.name}
+          className="block text-sm font-semibold mb-1"
+        >
           {field.label}
-          {field.required && !field.label?.includes('*') ? ' *' : ''}
+          {field.required && (
+            <span className="text-red-400"> *</span>
+          )}
         </label>
 
         {field.description && (
@@ -219,22 +212,29 @@ const Apply = () => {
           </p>
         )}
 
-        {isTextarea ? (
+        {textarea ? (
           <textarea
+            id={field.name}
+            name={field.name}
             className="w-full p-3 rounded-lg bg-[#111]/50 border border-gray-700 text-gray-200 focus:outline-none focus:border-purple-500 transition-colors resize-none"
-            rows={field.style === 2 ? 4 : 3}
+            rows={4}
             required={field.required}
             minLength={field.minLength}
             maxLength={field.maxLength}
             placeholder={field.placeholder || ''}
             value={value}
             onChange={(e) =>
-              handleFieldChange(field.name, e.target.value)
+              handleFieldChange(
+                field.name,
+                e.target.value
+              )
             }
           />
         ) : (
           <input
-            type="text"
+            id={field.name}
+            name={field.name}
+            type={getInputType(field)}
             className="w-full p-3 rounded-lg bg-[#111]/50 border border-gray-700 text-gray-200 focus:outline-none focus:border-purple-500 transition-colors"
             required={field.required}
             minLength={field.minLength}
@@ -242,14 +242,23 @@ const Apply = () => {
             placeholder={field.placeholder || ''}
             value={value}
             onChange={(e) =>
-              handleFieldChange(field.name, e.target.value)
+              handleFieldChange(
+                field.name,
+                e.target.value
+              )
             }
           />
         )}
 
-        {field.maxLength !== undefined && (
-          <p className="text-xs text-gray-500 mt-1">
-            {field.maxLength - String(value).length} characters remaining
+        {remaining !== null && (
+          <p
+            className={`text-xs mt-1 ${
+              remaining < 0
+                ? 'text-red-400'
+                : 'text-gray-500'
+            }`}
+          >
+            {remaining} characters remaining
           </p>
         )}
       </div>
@@ -308,7 +317,9 @@ const Apply = () => {
             <input
               type="checkbox"
               checked={agree}
-              onChange={(e) => setAgree(e.target.checked)}
+              onChange={(e) =>
+                setAgree(e.target.checked)
+              }
               className="checkbox checkbox-accent"
               required
             />
@@ -359,7 +370,9 @@ const Apply = () => {
                 <IoSend className="mr-2" />
               )}
 
-              {isSubmitting ? 'Submitting...' : 'Submit'}
+              {isSubmitting
+                ? 'Submitting...'
+                : 'Submit'}
             </button>
 
           </div>
