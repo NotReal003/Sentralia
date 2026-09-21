@@ -90,7 +90,7 @@ const Support = () => {
         const fetchRequestConfig = async () => {
             try {
                 const response = await apiClient.get(
-                    `${API}/requests/types/1`
+                    `${API}/requests/submissions/1`
                 );
 
                 setRequestConfig(response.data);
