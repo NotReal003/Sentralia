@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import apiClient, { API } from '../utils/api';
+// IMPORTANT: Re-enable your actual imports in your real project. 
+// I am leaving them here as you provided them, but noting that local relative imports might not work in isolated sandboxes.
+import apiClient, { API } from '../utils/api'; 
 import { FaDiscord, FaArrowRight, FaSpinner } from 'react-icons/fa';
 import { MdSupportAgent, MdDelete, MdCancel, MdInfoOutline, MdLink, MdTextFields } from 'react-icons/md';
 import { FaPeopleGroup } from 'react-icons/fa6';
@@ -18,134 +20,119 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const ACCOUNT_DELETION_TYPE = 4;
 
-const RequestStatus = ({ status }) => {
-  const statusStyles = {
-    DENIED: 'bg-red-600 text-white',
-    APPROVED: 'bg-green-600 text-white',
-    ESCALATED: 'bg-purple-600 text-white',
-    PENDING: 'bg-yellow-600 text-white',
-    CANCELLED: 'bg-orange-600 text-white',
-    RESOLVED: 'bg-green-600 text-white'
-  };
+// Centralized status styling for a consistent, professional look
+const STATUS_CONFIG = {
+  PENDING: {
+    label: 'Pending Review',
+    icon: FaHourglassHalf,
+    badgeClass: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    borderClass: 'border-l-amber-500',
+  },
+  APPROVED: {
+    label: 'Approved',
+    icon: FaCheckCircle,
+    badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    borderClass: 'border-l-emerald-500',
+  },
+  RESOLVED: {
+    label: 'Resolved',
+    icon: FaCheckCircle,
+    badgeClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    borderClass: 'border-l-blue-500',
+  },
+  DENIED: {
+    label: 'Denied',
+    icon: FaTimesCircle,
+    badgeClass: 'bg-red-500/10 text-red-400 border-red-500/20',
+    borderClass: 'border-l-red-500',
+  },
+  CANCELLED: {
+    label: 'Cancelled',
+    icon: FaBan,
+    badgeClass: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
+    borderClass: 'border-l-zinc-500',
+  },
+  ESCALATED: {
+    label: 'Escalated',
+    icon: FaExclamationTriangle,
+    badgeClass: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    borderClass: 'border-l-purple-500',
+  },
+  RESUBMIT_REQUIRED: {
+    label: 'Action Required',
+    icon: FaExclamationTriangle,
+    badgeClass: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+    borderClass: 'border-l-orange-500',
+  },
+  DEFAULT: {
+    label: 'Unknown',
+    icon: FaExclamationTriangle,
+    badgeClass: 'bg-zinc-500/10 text-zinc-400 border-zinc-500/20',
+    borderClass: 'border-l-zinc-500',
+  }
+};
 
-  const statusTooltips = {
-    DENIED: 'Your request was denied.',
-    APPROVED: 'Your request was approved.',
-    ESCALATED: 'Request is escalated.',
-    PENDING: 'Your request is pending review.',
-    CANCELLED: 'Your request was cancelled.',
-    RESOLVED: 'Your request was resolved.'
-  };
+const RequestStatusBadge = ({ status, size = 'sm' }) => {
+  const config = STATUS_CONFIG[status] || STATUS_CONFIG.DEFAULT;
+  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1.5 text-sm';
+  const Icon = config.icon;
 
   return (
     <span
-      className={`rounded-lg px-1 py-1 text-xs font-bold ${statusStyles[status] || 'bg-gray-600 text-white'}`}
-      title={statusTooltips[status] || 'Request status'}
+      className={`inline-flex items-center gap-1.5 font-medium rounded-full border ${config.badgeClass} ${sizeClasses}`}
+      title={`Status: ${config.label}`}
     >
-      {status}
+      {size !== 'sm' && <Icon className="text-inherit" />}
+      {config.label}
     </span>
   );
 };
 
-const RequestIcon = ({ type }) => {
+const RequestIcon = ({ type, className = "" }) => {
+  const iconProps = { className: `text-2xl text-zinc-400 ${className}` };
   switch (Number(type)) {
-    case 1:
-      return (
-        <MdSupportAgent
-          className="text-4xl mr-4"
-          title="Support Request"
-        />
-      );
-
-    case 2:
-      return (
-        <FaDiscord
-          className="text-4xl mr-4"
-          title="Discord Report"
-        />
-      );
-
-    case 3:
-      return (
-        <FaPeopleGroup
-          className="text-4xl mr-4"
-          title="Application"
-        />
-      );
-
-    case 4:
-      return (
-        <MdDelete
-          className="text-4xl mr-4"
-          title="Account Deletion"
-        />
-      );
-
-    default:
-      return null;
+    case 1: return <MdSupportAgent {...iconProps} title="Support Request" />;
+    case 2: return <FaDiscord {...iconProps} title="Discord Report" />;
+    case 3: return <FaPeopleGroup {...iconProps} title="Application" />;
+    case 4: return <MdDelete {...iconProps} title="Account Deletion" />;
+    default: return <MdInfoOutline {...iconProps} />;
   }
 };
 
 const getRequestTitle = (request) => {
-  if (request.typeName) {
-    return request.typeName;
-  }
-
+  if (request.typeName) return request.typeName;
   switch (Number(request.requestType)) {
-    case 1:
-      return 'Support Request';
-    case 2:
-      return 'Discord Report';
-    case 3:
-      return 'Application';
-    case 4:
-      return 'Account Deletion';
-    default:
-      return 'Request';
+    case 1: return 'Support Request';
+    case 2: return 'Discord Report';
+    case 3: return 'Application';
+    case 4: return 'Account Deletion';
+    default: return 'General Request';
   }
 };
 
-const getGradientClass = (status) => {
-  switch (status) {
-    case 'DENIED':
-      return 'bg-gradient-to-r from-red-600 to-red-700';
-
-    case 'CANCELLED':
-      return 'bg-gradient-to-r from-orange-600 to-orange-700';
-
-    case 'APPROVED':
-      return 'bg-gradient-to-r from-green-600 to-green-700';
-
-    case 'RESUBMIT_REQUIRED':
-      return 'bg-gradient-to-r from-orange-600 to-orange-700';
-
-    case 'RESOLVED':
-      return 'bg-gradient-to-r from-green-600 to-green-700';
-
-    case 'ESCALATED':
-      return 'bg-gradient-to-r from-purple-500 to-purple-600';
-
-    default:
-      return 'bg-gradient-to-r from-yellow-500 to-yellow-600';
-  }
-};
+const LoadingSpinner = ({ text = 'Loading...' }) => (
+  <div className="flex flex-col items-center justify-center min-h-[60vh] text-zinc-400">
+    <div className="relative w-12 h-12 mb-4">
+      <div className="absolute inset-0 border-2 border-zinc-800 rounded-full"></div>
+      <div className="absolute inset-0 border-2 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
+    </div>
+    <p className="text-sm font-medium tracking-wide animate-pulse">{text}</p>
+  </div>
+);
 
 const PermissionError = ({ message }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-6 text-center">
-    <div className="bg-[#0a0a0a] p-10 rounded-xl shadow-2xl border border-red-900/30">
-      <FaShieldAlt className="text-6xl text-red-500 mx-auto mb-6" />
-
-      <h1 className="text-3xl font-bold mb-3 text-white">
-        Access Denied
-      </h1>
-
-      <p className="text-gray-400 max-w-sm">
-        {message || 'You do not have permission to view this request.'}
+  <div className="flex flex-col items-center justify-center min-h-[70vh] px-4 text-center">
+    <div className="bg-zinc-900/50 p-8 rounded-2xl border border-red-900/30 max-w-md w-full backdrop-blur-sm">
+      <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+        <FaShieldAlt className="text-3xl text-red-500" />
+      </div>
+      <h1 className="text-2xl font-semibold mb-3 text-zinc-100">Access Denied</h1>
+      <p className="text-zinc-400 text-sm mb-8 leading-relaxed">
+        {message || 'You do not have the required permissions to view this specific request.'}
       </p>
-
       <button
         onClick={() => window.history.back()}
-        className="mt-6 px-5 py-2.5 bg-[#1a1a1a] text-white rounded-lg hover:bg-[#252525] transition-colors border border-gray-800"
+        className="w-full px-5 py-2.5 bg-zinc-800 text-zinc-200 rounded-xl hover:bg-zinc-700 hover:text-white transition-all font-medium border border-zinc-700/50"
       >
         Go Back
       </button>
@@ -153,318 +140,197 @@ const PermissionError = ({ message }) => (
   </div>
 );
 
-const ConfirmationModal = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  children,
-  isActionInProgress
-}) => {
-  if (!isOpen) {
-    return null;
-  }
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, children, isActionInProgress }) => {
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/80 z-50 backdrop-blur-sm">
-      <div className="bg-[#0a0a0a] p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-800">
-        <h2 className="text-2xl font-bold mb-4 text-white">
-          {title}
-        </h2>
-
-        <div className="text-gray-400 mb-6">
-          {children}
+    <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/60 z-50 backdrop-blur-md transition-opacity">
+      <div className="bg-zinc-900 p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-md border border-zinc-800 transform transition-all scale-100">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0">
+             <FaExclamationTriangle className="text-red-500" />
+          </div>
+          <h2 className="text-xl font-semibold text-zinc-100">{title}</h2>
         </div>
+        
+        <p className="text-zinc-400 text-sm mb-8 leading-relaxed">
+          {children}
+        </p>
 
-        <div className="flex justify-end space-x-3">
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3">
           <button
             onClick={onClose}
             disabled={isActionInProgress}
-            className="px-5 py-2.5 bg-[#1a1a1a] text-gray-300 rounded-lg hover:bg-[#252525] transition-colors border border-gray-800 disabled:opacity-50"
+            className="w-full sm:w-auto px-5 py-2.5 bg-transparent text-zinc-400 rounded-xl hover:text-zinc-200 hover:bg-zinc-800 transition-colors font-medium disabled:opacity-50"
           >
-            Go Back
+            Cancel
           </button>
-
           <button
             onClick={onConfirm}
             disabled={isActionInProgress}
-            className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full sm:w-auto px-5 py-2.5 bg-red-500/10 text-red-500 border border-red-500/20 rounded-xl hover:bg-red-500 hover:text-white transition-all font-medium flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isActionInProgress ? (
               <FaSpinner className="animate-spin mr-2" />
             ) : (
               <MdCancel className="mr-2" />
             )}
-
-            Confirm
+            Confirm Action
           </button>
         </div>
       </div>
-    </div>
-  );
-};
-
-const StatusIndicator = ({ status }) => {
-  const statusStyles = {
-    PENDING: {
-      icon: FaHourglassHalf,
-      text: 'Pending Review',
-      color: 'text-amber-400',
-      bg: 'bg-amber-500/10',
-      border: 'border-amber-500/30'
-    },
-
-    APPROVED: {
-      icon: FaCheckCircle,
-      text: 'Approved',
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10',
-      border: 'border-emerald-500/30'
-    },
-
-    RESOLVED: {
-      icon: FaCheckCircle,
-      text: 'Resolved',
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10',
-      border: 'border-emerald-500/30'
-    },
-
-    DENIED: {
-      icon: FaTimesCircle,
-      text: 'Denied',
-      color: 'text-red-400',
-      bg: 'bg-red-500/10',
-      border: 'border-red-500/30'
-    },
-
-    CANCELLED: {
-      icon: FaBan,
-      text: 'Cancelled',
-      color: 'text-red-400',
-      bg: 'bg-red-500/10',
-      border: 'border-red-500/30'
-    },
-
-    ESCALATED: {
-      icon: FaExclamationTriangle,
-      text: 'Escalated',
-      color: 'text-orange-400',
-      bg: 'bg-orange-500/10',
-      border: 'border-orange-500/30'
-    }
-  };
-
-  const currentStatus =
-    statusStyles[status] || {
-      icon: FaExclamationTriangle,
-      text: 'Unknown',
-      color: 'text-gray-400',
-      bg: 'bg-gray-500/10',
-      border: 'border-gray-500/30'
-    };
-
-  const Icon = currentStatus.icon;
-
-  return (
-    <div
-      className={`flex items-center text-sm font-semibold ${currentStatus.color} ${currentStatus.bg} px-4 py-2 rounded-lg border ${currentStatus.border}`}
-    >
-      <Icon className="mr-2" />
-      <span>{currentStatus.text}</span>
     </div>
   );
 };
 
 const InfoField = ({ field }) => {
   const value = field?.value;
-
-  const Icon = field?.name?.toLowerCase().includes('link')
-    ? MdLink
-    : MdTextFields;
-
-  const displayValue = Array.isArray(value)
-    ? value.join(', ')
-    : value;
+  const Icon = field?.name?.toLowerCase().includes('link') ? MdLink : MdTextFields;
+  const displayValue = Array.isArray(value) ? value.join(', ') : value;
 
   return (
-    <div>
-      <label className="flex items-center text-sm font-medium text-gray-400 mb-2">
-        <Icon className="mr-2 text-gray-500" />
-        {field.label}
-      </label>
+    <div className="group">
+      <div className="flex items-center gap-2 mb-1.5">
+        <Icon className="text-zinc-500 group-hover:text-zinc-400 transition-colors" />
+        <label className="text-sm font-medium text-zinc-300">
+          {field.label}
+        </label>
+      </div>
 
       {field.description && (
-        <p className="text-xs text-gray-500 mb-2">
+        <p className="text-xs text-zinc-500 mb-2 pl-6">
           {field.description}
         </p>
       )}
 
-      <div className="p-3 bg-[#0a0a0a] rounded-lg border border-gray-800 text-gray-300 whitespace-pre-wrap break-words min-h-[44px]">
-        {displayValue !== undefined &&
-        displayValue !== null &&
-        String(displayValue).length > 0 ? (
+      <div className="ml-6 p-3.5 bg-zinc-900/50 rounded-xl border border-zinc-800/80 text-zinc-300 whitespace-pre-wrap break-words min-h-[48px] text-sm leading-relaxed group-hover:border-zinc-700 transition-colors">
+        {displayValue !== undefined && displayValue !== null && String(displayValue).length > 0 ? (
           displayValue
         ) : (
-          <span className="text-gray-600">
-            Not provided
-          </span>
+          <span className="text-zinc-600 italic">Not provided</span>
         )}
       </div>
     </div>
   );
 };
 
-const LoadingSpinner = ({ text = 'Loading...' }) => (
-  <div className="flex flex-col items-center justify-center min-h-screen text-gray-400">
-    <FaSpinner className="animate-spin text-5xl mb-4 text-gray-500" />
-
-    <p className="text-lg">
-      {text}
-    </p>
-  </div>
-);
-
 const RequestList = ({ requests, loading, error, onSelect, onBack }) => {
   return (
-    <div className="flex flex-col items-center justify-center max-w-md md:max-w-lg mx-auto min-h-screen p-4 shadow-lg">
-      <Toaster position="top-center" />
+    <div className="min-h-screen bg-[#09090b] text-zinc-200 p-4 md:p-8 font-sans selection:bg-indigo-500/30">
+      <Toaster 
+        position="top-center" 
+        toastOptions={{
+          className: 'bg-zinc-900 text-zinc-100 border border-zinc-800 shadow-xl rounded-xl text-sm'
+        }} 
+      />
 
-      <div className="rounded-lg shadow-sm p-2">
-        <h1 className="text-2xl font-bold mb-4">
-          Your Requests
-        </h1>
-      </div>
+      <div className="max-w-4xl mx-auto">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-zinc-100 tracking-tight">
+              Support Requests
+            </h1>
+            <p className="text-sm text-zinc-400 mt-1">Manage and track your submitted inquiries.</p>
+          </div>
+          <button
+            onClick={onBack}
+            className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl transition-all text-sm font-medium flex items-center text-zinc-300 hover:text-white"
+          >
+            <IoMdArrowRoundBack className="mr-2 text-lg" />
+            Return to Dashboard
+          </button>
+        </header>
 
-      <div className="w-full max-w-3xl">
-        <div className="space-y-4">
+        <div className="space-y-3">
           {loading ? (
-            <div className="space-y-4">
-              {[...Array(6)].map((_, idx) => (
+            // Professional Skeleton Loading
+            [...Array(4)].map((_, idx) => (
+              <div key={idx} className="animate-pulse flex items-center p-5 bg-zinc-900/40 border border-zinc-800/50 rounded-2xl">
+                <div className="w-12 h-12 bg-zinc-800 rounded-full mr-4" />
+                <div className="flex-1">
+                  <div className="h-4 bg-zinc-800 rounded w-1/3 mb-3" />
+                  <div className="h-3 bg-zinc-800 rounded w-1/4" />
+                </div>
+                <div className="w-20 h-6 bg-zinc-800 rounded-full" />
+              </div>
+            ))
+          ) : error ? (
+            <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center">
+              <FaExclamationTriangle className="mx-auto text-2xl text-red-500 mb-2" />
+              <p className="text-red-400 font-medium">{error}</p>
+            </div>
+          ) : requests.length > 0 ? (
+            requests.map((request) => {
+              const config = STATUS_CONFIG[request.status] || STATUS_CONFIG.DEFAULT;
+              return (
                 <div
-                  key={idx}
-                  className="animate-pulse flex justify-between items-center p-4 bg-base-300 rounded-lg shadow-lg max-w-md md:max-w-lg mx-auto"
+                  key={request._id}
+                  onClick={() => onSelect(request._id)}
+                  className={`group relative flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-zinc-900/30 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all duration-200 cursor-pointer overflow-hidden gap-4 shadow-sm hover:shadow-md`}
                 >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gray-400 rounded-full" />
-
+                  {/* Subtle left border status indicator */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 ${config.borderClass} opacity-70 group-hover:opacity-100 transition-opacity`} />
+                  
+                  <div className="flex items-start sm:items-center gap-4 pl-2">
+                    <div className="p-3 bg-zinc-800/50 rounded-xl group-hover:bg-zinc-800 transition-colors">
+                      <RequestIcon type={request.requestType} />
+                    </div>
                     <div>
-                      <div className="h-4 bg-gray-400 rounded w-40 mb-2" />
-                      <div className="h-3 bg-gray-400 rounded w-24" />
+                      <h2 className="text-base font-semibold text-zinc-100 mb-1 flex items-center gap-2">
+                        {getRequestTitle(request)}
+                      </h2>
+                      <div className="flex items-center text-xs text-zinc-500 gap-3">
+                        <span className="font-mono bg-zinc-800/50 px-1.5 py-0.5 rounded text-zinc-400">
+                          #{request._id.slice(-6)}
+                        </span>
+                        <span>
+                          {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="w-4 h-4 bg-gray-400 rounded" />
-                </div>
-              ))}
-            </div>
-          ) : error ? (
-            <p className="text-center text-red-600 font-bold">
-              {error}
-            </p>
-          ) : requests.length > 0 ? (
-            requests.map((request) => (
-              <div
-                key={request._id}
-                className={`flex justify-between items-center p-4 rounded-lg shadow-lg max-w-md md:max-w-lg mx-auto text-white ${getGradientClass(request.status)} cursor-pointer`}
-                onClick={() => onSelect(request._id)}
-              >
-                <div className="flex items-center">
-                  <RequestIcon
-                    type={request.requestType}
-                  />
-
-                  <div>
-                    <h2 className="text-md font-bold">
-                      {getRequestTitle(request)}{' '}
-                      <RequestStatus
-                        status={request.status}
-                      />
-                    </h2>
-
-                    <p className="text-sm">
-                      {formatDistanceToNow(
-                        new Date(request.createdAt),
-                        { addSuffix: true }
-                      )}
-                    </p>
+                  <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-4 pl-2 sm:pl-0">
+                    <RequestStatusBadge status={request.status} />
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800/0 group-hover:bg-zinc-800 transition-colors">
+                       <FaArrowRight className="text-zinc-500 group-hover:text-zinc-300 transition-colors text-sm" />
+                    </div>
                   </div>
                 </div>
-
-                <div className="flex items-center">
-                  <FaArrowRight className="ml-2 text-white" />
-                </div>
-              </div>
-            ))
+              );
+            })
           ) : (
-            <p className="min-h-screen text-center text-gray-800">
-              Hold on! You have not submitted any request yet...
-            </p>
+             <div className="text-center py-20 bg-zinc-900/20 border border-zinc-800/50 rounded-2xl border-dashed">
+                <div className="w-16 h-16 bg-zinc-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MdSupportAgent className="text-3xl text-zinc-500" />
+                </div>
+                <h3 className="text-lg font-medium text-zinc-300 mb-1">No requests found</h3>
+                <p className="text-sm text-zinc-500">You haven't submitted any support requests yet.</p>
+            </div>
           )}
-        </div>
-
-        <div className="sticky bottom-0 left-0 right-0 w-full bg-base-100 border border-t-slate-100 flex justify-start items-center rounded-md p-2 mt-4">
-          <button
-            className="btn text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg no-animation"
-            onClick={onBack}
-          >
-            <IoMdArrowRoundBack className="mr-2" />
-            Back
-          </button>
         </div>
       </div>
     </div>
   );
 };
 
-const RequestDetails = ({
-  request,
-  loading,
-  permissionError,
-  onBack,
-  onCancel
-}) => {
+const RequestDetails = ({ request, loading, permissionError, onBack, onCancel }) => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
-  if (loading) {
-    return <LoadingSpinner text="Loading request details..." />;
-  }
+  if (loading) return <div className="min-h-screen bg-[#09090b] flex items-center justify-center"><LoadingSpinner text="Retrieving details..." /></div>;
+  if (permissionError) return <div className="min-h-screen bg-[#09090b] flex items-center justify-center"><PermissionError message={permissionError} /></div>;
+  if (!request) return <div className="min-h-screen bg-[#09090b] flex items-center justify-center"><PermissionError message="Could not find the specified request." /></div>;
 
-  if (permissionError) {
-    return <PermissionError message={permissionError} />;
-  }
-
-  if (!request) {
-    return (
-      <PermissionError message="Could not find the specified request." />
-    );
-  }
-
-  const isAccountDeletion =
-    Number(request.requestType) === ACCOUNT_DELETION_TYPE;
-
-  const canCancel =
-    (
-      request.status === 'PENDING' &&
-      request.reviewed === false &&
-      !isAccountDeletion
-    ) ||
-    (
-      request.status === 'ESCALATED' &&
-      isAccountDeletion
-    );
-
-  const fields = Array.isArray(request.fields)
-    ? request.fields
-    : [];
+  const isAccountDeletion = Number(request.requestType) === ACCOUNT_DELETION_TYPE;
+  const canCancel = (request.status === 'PENDING' && request.reviewed === false && !isAccountDeletion) || 
+                    (request.status === 'ESCALATED' && isAccountDeletion);
+  const fields = Array.isArray(request.fields) ? request.fields : [];
 
   const handleConfirmCancel = async () => {
     setIsCancelling(true);
-
     try {
       await onCancel(request._id);
-
       setShowCancelModal(false);
     } catch (error) {
       console.error(error);
@@ -474,107 +340,105 @@ const RequestDetails = ({
   };
 
   return (
-    <div className="min-h-screen w-full text-gray-200 font-sans">
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          className:
-            'bg-[#0a0a0a] text-white border border-gray-800'
-        }}
+    <div className="min-h-screen bg-[#09090b] text-zinc-200 font-sans selection:bg-indigo-500/30 pb-20">
+      <Toaster 
+        position="top-center" 
+        toastOptions={{ className: 'bg-zinc-900 text-zinc-100 border border-zinc-800 shadow-xl rounded-xl text-sm' }} 
       />
 
       <ConfirmationModal
         isOpen={showCancelModal}
         onClose={() => setShowCancelModal(false)}
         onConfirm={handleConfirmCancel}
-        title="Confirm Cancellation"
+        title="Cancel Request"
         isActionInProgress={isCancelling}
       >
-        Are you sure you want to cancel this request?
-        This action cannot be reversed.
+        Are you sure you want to cancel this request? This action will close the ticket and cannot be undone.
       </ConfirmationModal>
 
-      <div className="p-4 sm:p-6 lg:p-10">
-        <header className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 pb-6 border-b border-gray-800">
-          <div>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
-              Request Details
-            </h1>
+      <div className="max-w-3xl mx-auto pt-8 px-4 md:px-8">
+        <button
+          onClick={onBack}
+          className="mb-6 px-4 py-2 bg-transparent hover:bg-zinc-900 border border-transparent hover:border-zinc-800 rounded-xl transition-all text-sm font-medium flex items-center text-zinc-400 hover:text-zinc-200 w-fit"
+        >
+          <IoMdArrowRoundBack className="mr-2 text-lg" />
+          Back to List
+        </button>
 
-            <p className="text-sm text-gray-500">
-              ID:{' '}
-              <span className="font-mono text-gray-400">
-                {request._id}
-              </span>
-            </p>
+        <main className="bg-zinc-900/40 border border-zinc-800/80 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-sm">
+          {/* Header Section */}
+          <div className="p-6 md:p-8 border-b border-zinc-800/80 bg-zinc-900/50">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div className="flex gap-4">
+                 <div className="p-4 bg-zinc-800/80 rounded-2xl h-fit border border-zinc-700/50 shadow-inner">
+                    <RequestIcon type={request.requestType} className="text-3xl text-zinc-300" />
+                 </div>
+                 <div>
+                    <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">
+                      {getRequestTitle(request)}
+                    </h1>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-zinc-500">
+                      <span>Submitted {formatDistanceToNow(new Date(request.createdAt), { addSuffix: true })}</span>
+                      <span className="hidden sm:inline">•</span>
+                      <span className="font-mono bg-zinc-950 px-2 py-0.5 rounded-md border border-zinc-800 text-xs">
+                        ID: {request._id}
+                      </span>
+                    </div>
+                 </div>
+              </div>
+              <div className="flex-shrink-0 pt-2 md:pt-0">
+                 <RequestStatusBadge status={request.status} size="lg" />
+              </div>
+            </div>
           </div>
 
-          <button
-            onClick={onBack}
-            className="mt-4 sm:mt-0 px-5 py-2.5 bg-[#1a1a1a] hover:bg-[#252525] transition-colors text-white rounded-lg flex items-center"
-          >
-            <IoMdArrowRoundBack className="mr-2" />
-            Go Back
-          </button>
-        </header>
-
-        <main className="max-w-4xl mx-auto">
-          <div className="bg-[#0a0a0a] p-6 sm:p-8 rounded-xl border border-gray-800 shadow-xl">
-
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-800 pb-5 mb-6">
-              <h2 className="text-xl font-semibold text-white mb-3 sm:mb-0">
-                {getRequestTitle(request)}
-              </h2>
-
-              <StatusIndicator status={request.status} />
-            </div>
-
+          {}
+          <div className="p-6 md:p-8 space-y-8">
+            
+            {}
             {request.reviewed === true && (
-              <div className="mb-6 bg-blue-950/30 p-5 rounded-lg border border-blue-900/40">
-                <h3 className="text-base font-semibold text-blue-400 mb-3 flex items-center">
-                  <MdInfoOutline className="mr-2" />
-                  Staff Response
+              <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                <h3 className="text-sm font-semibold text-indigo-400 mb-3 flex items-center uppercase tracking-wider">
+                  <MdSupportAgent className="mr-2 text-lg" />
+                  Official Response
                 </h3>
-
-                <p className="text-gray-300 whitespace-pre-wrap leading-relaxed">
-                  {request.reviewMessage ||
-                    `Your request was ${request.status.toLowerCase()}.`}
+                <p className="text-zinc-300 whitespace-pre-wrap leading-relaxed text-sm md:text-base">
+                  {request.reviewMessage || `Your request has been marked as ${request.status.toLowerCase()} by the moderation team.`}
                 </p>
               </div>
             )}
 
-            <div className="space-y-4">
-              <h3 className="text-base font-semibold text-gray-300 mb-4">
-                Submitted Information
+            {}
+            <div>
+              <h3 className="text-lg font-semibold text-zinc-200 mb-5 pb-2 border-b border-zinc-800">
+                Provided Information
               </h3>
-
-              {fields.length > 0 ? (
-                fields.map((field) => (
-                  <InfoField
-                    key={field.name}
-                    field={field}
-                  />
-                ))
-              ) : (
-                <p className="text-gray-500">
-                  No submitted fields.
-                </p>
-              )}
+              <div className="space-y-6">
+                {fields.length > 0 ? (
+                  fields.map((field) => (
+                    <InfoField key={field.name} field={field} />
+                  ))
+                ) : (
+                  <div className="text-center py-8 bg-zinc-900/30 rounded-xl border border-zinc-800/50 border-dashed">
+                     <p className="text-zinc-500 text-sm">No additional fields were provided for this request.</p>
+                  </div>
+                )}
+              </div>
             </div>
 
+            {}
             {canCancel && (
-              <div className="text-center pt-6 mt-6 border-t border-gray-800">
-                <p className="text-sm text-gray-500 mb-4">
-                  Need to make changes? You can cancel this request.
-                </p>
-
+              <div className="pt-8 mt-4 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between gap-4 bg-zinc-900/20 -mx-6 md:-mx-8 -mb-6 md:-mb-8 p-6 md:p-8">
+                <div>
+                  <h4 className="text-zinc-200 font-medium mb-1">Need to withdraw this?</h4>
+                  <p className="text-xs text-zinc-500">Canceling will close this request permanently.</p>
+                </div>
                 <button
                   onClick={() => setShowCancelModal(true)}
-                  className="px-6 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium shadow-lg"
+                  className="w-full sm:w-auto px-6 py-2.5 bg-zinc-800/50 text-red-400 border border-red-500/20 rounded-xl hover:bg-red-500 hover:text-white transition-all font-medium text-sm shadow-sm"
                 >
-                  {isAccountDeletion
-                    ? 'Cancel Account Deletion'
-                    : 'Cancel Request'}
+                  {isAccountDeletion ? 'Cancel Deletion Request' : 'Withdraw Request'}
                 </button>
               </div>
             )}
@@ -585,46 +449,30 @@ const RequestDetails = ({
   );
 };
 
-const One = () => {
+const RequestManager = () => {
   const navigate = useNavigate();
 
   const [requests, setRequests] = useState([]);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
-
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
-
   const [error, setError] = useState(null);
   const [permissionError, setPermissionError] = useState(null);
-
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const response = await apiClient.get(
-          `${API}/requests`
-        );
-
-        const sortedRequests = [...response.data].sort(
-          (a, b) =>
-            new Date(b.createdAt) -
-            new Date(a.createdAt)
-        );
-
+        const response = await apiClient.get(`${API}/requests`);
+        const sortedRequests = [...response.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         setRequests(sortedRequests);
       } catch (error) {
         console.error(error);
-
         if (error.response?.status === 403) {
           window.location.reload();
           return;
         }
-
-        setError(
-          error.response?.data?.message ||
-          'Error While Checking Requests...'
-        );
+        setError(error.response?.data?.message || 'Unable to load requests at this time.');
       } finally {
         setLoading(false);
       }
@@ -640,55 +488,35 @@ const One = () => {
     setDetailLoading(true);
 
     try {
-      const response = await apiClient.get(
-        `${API}/requests/${requestId}`
-      );
-
+      const response = await apiClient.get(`${API}/requests/${requestId}`);
       setSelectedRequest(response.data);
     } catch (error) {
       console.error(error);
-
-      setPermissionError(
-        error.response?.data?.message ||
-        'You do not have permission to view this request.'
-      );
+      setPermissionError(error.response?.data?.message || 'You do not have permission to view this request.');
     } finally {
       setDetailLoading(false);
     }
   };
 
   const handleCancelRequest = async (requestId) => {
-    const cancelPromise = apiClient.patch(
-      `${API}/requests/${requestId}/cancel`
-    );
+    const cancelPromise = apiClient.patch(`${API}/requests/${requestId}/cancel`);
 
     toast.promise(cancelPromise, {
-      loading: 'Cancelling request...',
+      loading: 'Processing cancellation...',
       success: 'Request cancelled successfully.',
-      error: (error) =>
-        error.response?.data?.message ||
-        'Failed to cancel request.'
+      error: (error) => error.response?.data?.message || 'Failed to cancel request.'
     });
 
     try {
       await cancelPromise;
-
-      const response = await apiClient.get(
-        `${API}/requests/${requestId}`
-      );
-
+      const response = await apiClient.get(`${API}/requests/${requestId}`);
+      
       setSelectedRequest(response.data);
-
-      setRequests((previousRequests) =>
-        previousRequests.map((request) =>
-          request._id === requestId
-            ? {
-                ...request,
-                status: response.data.status,
-                reviewed: response.data.reviewed,
-                reviewMessage: response.data.reviewMessage
-              }
-            : request
+      setRequests((prev) =>
+        prev.map((req) =>
+          req._id === requestId
+            ? { ...req, status: response.data.status, reviewed: response.data.reviewed, reviewMessage: response.data.reviewMessage }
+            : req
         )
       );
     } catch (error) {
@@ -725,4 +553,4 @@ const One = () => {
   );
 };
 
-export default One;
+export default RequestManager;
