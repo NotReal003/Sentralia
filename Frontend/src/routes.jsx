@@ -25,6 +25,7 @@ import {
   AdminUsers,
   Performance,
   AuditLogs,
+  Request,
 } from './pages';
 import { Navigate, useLocation } from "react-router-dom";
 
@@ -41,6 +42,7 @@ function RequireLogin({ children, isAuthenticated }) {
 const routes = (isAuthenticated) => [
   { path: "/", element: <RequireLogin isAuthenticated={isAuthenticated}><Home /></RequireLogin> },
   { path: "/report", element: <RequireLogin isAuthenticated={isAuthenticated}><ReportForm /></RequireLogin> },
+  { path: "/request/:requestType", element: <RequireLogin isAuthenticated={isAuthenticated}><Request /></RequireLogin> },
   { path: "/support", element: <RequireLogin isAuthenticated={isAuthenticated}><Support /></RequireLogin> },
   { path: "/apply", element: <RequireLogin isAuthenticated={isAuthenticated}><Apply /></RequireLogin> },
   { path: "/login", element: <Login /> },
