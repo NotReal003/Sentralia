@@ -59,7 +59,7 @@ export default function Navbar({ isAuthenticated }) {
         console.error(error);
         toast.error('Something went wrong :/');
         setShowAlert(true);
-        setErrorIssue('B: Connection error between the server and the client :/');
+        setErrorIssue('Connection error between the server and the client :/');
       }
 
       setLoading(false);
@@ -113,11 +113,8 @@ export default function Navbar({ isAuthenticated }) {
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <span>
-            We are unable to verify you: <strong>{errorIssue}</strong>
+            <strong>{errorIssue}</strong>
           </span>
-          <div>
-            <button className="btn no-animation btn-sm bg-yellow-500 text-white font-medium rounded-lg shadow-sm hover:bg-yellow-600 transition-all" onClick={() => window.location.reload()}>Reload</button>
-          </div>
         </div>
       )}
 
