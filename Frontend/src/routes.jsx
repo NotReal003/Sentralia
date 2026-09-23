@@ -25,6 +25,13 @@ import {
 } from './pages';
 import { Navigate, useLocation } from "react-router-dom";
 
+const REQUEST_TYPES = Object.freeze({
+  SUPPORT: 1,
+  REPORT: 2,
+  APPLICATION: 3,
+  ACCOUNT_DELETION: 4,
+});
+
 function RequireLogin({ children, isAuthenticated }) {
   const location = useLocation();
 
@@ -38,6 +45,9 @@ function RequireLogin({ children, isAuthenticated }) {
 const routes = (isAuthenticated) => [
   { path: "/", element: <RequireLogin isAuthenticated={isAuthenticated}><Home /></RequireLogin> },
   { path: "/request/:requestType", element: <RequireLogin isAuthenticated={isAuthenticated}><Request /></RequireLogin> },
+  { path: "/support", element: <Navigate to={`/request/${REQUEST_TYPES.SUPPORT}`} replace /> },
+  { path: "/report", element: <Navigate to={`/request/${REQUEST_TYPES.REPORT}`} replace /> },
+  { path: "/apply", element: <Navigate to={`/request/${REQUEST_TYPES.APPLICATION}`} replace /> },
   { path: "/login", element: <Login /> },
   { path: "/success", element: <RequireLogin isAuthenticated={isAuthenticated}><Success /></RequireLogin> },
   { path: "/one", element: <RequireLogin isAuthenticated={isAuthenticated}><One /></RequireLogin> },
